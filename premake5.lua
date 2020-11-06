@@ -21,6 +21,7 @@ project "ktwVulkanGameEngine"
 
 	files {
 		"src/**.h",
+		"src/**.hpp",
 		"src/**.cpp"
 	}
 
