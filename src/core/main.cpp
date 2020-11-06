@@ -1,35 +1,71 @@
-#define GLFW_INCLUDE_VULKAN
+#include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-
 #include <iostream>
+#include <stdexcept>
+#include <cstdlib>
+#include <memory>
+
+#include "Context.hpp"
+
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
+
+class HelloTriangleApplication {
+public:
+	void run() {
+		initWindow();
+		initVulkan();
+		mainLoop();
+		cleanup();
+	}
+
+private:
+	GLFWwindow* window;
+	std::unique_ptr<ktw::Context> context;
+
+	void initWindow() {
+		glfwInit();
+
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		
+		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+	}
+
+	void initVulkan() {
+		uint32_t glfwExtensionCount = 0;
+		const char** glfwExtensions;
+
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+		std::vector<const char*> extensionNames(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+		context.swap(std::unique_ptr<ktw::Context>(new ktw::Context(extensionNames)));
+	}
+
+	void mainLoop() {
+		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+		}
+	}
+
+	void cleanup() {
+		glfwDestroyWindow(window);
+
+		glfwTerminate();
+	}
+};
 
 int main() {
-    glfwInit();
+	HelloTriangleApplication app;
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
+	try {
+		app.run();
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
 
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    std::cout << extensionCount << " extensions supported\n";
-
-    glm::mat4 matrix;
-    glm::vec4 vec;
-    auto test = matrix * vec;
-
-    while(!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-    }
-
-    glfwDestroyWindow(window);
-
-    glfwTerminate();
-
-    return 0;
+	return EXIT_SUCCESS;
 }
