@@ -53,12 +53,7 @@ namespace ktw {
 
 			createInstance(extensionNames);
 			setupDebugMessenger();
-
-			VkSurfaceKHR surface;
-			VkResult err = glfwCreateWindowSurface(*instance, window, nullptr, &surface);
-
-			this->surface = vk::UniqueSurfaceKHR(surface, *instance);
-
+			createSurface();
 			pickPhysicalDevice();
 			createLogicalDevice();
 		}
@@ -72,8 +67,16 @@ namespace ktw {
 
 		void cleanup() {
 			glfwDestroyWindow(window);
-
 			glfwTerminate();
+		}
+
+		void createSurface() {
+			VkSurfaceKHR surface;
+			if(glfwCreateWindowSurface(*instance, window, nullptr, &surface) != VK_SUCCESS) {
+				throw std::runtime_error("failed to create window surface!");
+			}
+
+			this->surface = vk::UniqueSurfaceKHR(surface, *instance);
 		}
 
 		void createInstance(std::vector<const char *> extensionNames) {
@@ -157,6 +160,10 @@ namespace ktw {
 				return 0;
 			}
 
+			// Must support PresentQueue
+			if(findPresentQueueIndexes(device).size() == 0) {
+				return 0;
+			}
 
 			vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
 			vk::PhysicalDeviceFeatures deviceFeatures = device.getFeatures();
@@ -206,15 +213,46 @@ namespace ktw {
 			return res;
 		}
 
+		std::vector<uint32_t> findPresentQueueIndexes(vk::PhysicalDevice device) {
+			auto queueFamilyProperties = device.getQueueFamilyProperties();
+			std::vector<uint32_t> res;
+			for (uint32_t i = 0; i < queueFamilyProperties.size(); i++) {
+				if (device.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get())) {
+					res.push_back(i);
+				}
+			}
+			return res;
+		}
+
 		void createLogicalDevice() {
 			std::vector<uint32_t> graphicsQueueIndices = findGraphicsQueueIndexes(physicalDevice);
+			std::vector<uint32_t> presentQueueIndices = findPresentQueueIndexes(physicalDevice);
 
-			auto queueCreateInfo = vk::DeviceQueueCreateInfo()
-				.setQueueFamilyIndex(graphicsQueueIndices[0])
-				.setQueueCount(1);
-			
+			// We can be smarter here ?
+			std::set<uint32_t> uniqueQueueFamilyIndices = { graphicsQueueIndices[0], presentQueueIndices[0] };
+
+			std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+
 			float queuePriority = 1.0f;
-			queueCreateInfo.setPQueuePriorities(&queuePriority);
+			for (uint32_t queueFamilyIndex : uniqueQueueFamilyIndices) {
+				auto queueCreateInfo = vk::DeviceQueueCreateInfo()
+					.setQueueFamilyIndex(queueFamilyIndex)
+					.setQueueCount(1)
+					.setPQueuePriorities(&queuePriority);
+				queueCreateInfos.push_back(queueCreateInfo);
+			}
+
+			vk::PhysicalDeviceFeatures deviceFeatures{};
+
+			auto createInfo = vk::DeviceCreateInfo()
+				.setPQueueCreateInfos(queueCreateInfos.data())
+				.setQueueCreateInfoCount(static_cast<uint32_t>(queueCreateInfos.size()))
+				.setPEnabledFeatures(&deviceFeatures)
+				.setEnabledExtensionCount(0);
+
+			device = physicalDevice.createDeviceUnique(createInfo);
+			graphicsQueue = device->getQueue(graphicsQueueIndices[0], 0);
+			presentQueue = device->getQueue(presentQueueIndices[0], 0);
 		}
 
 		uint32_t width;
@@ -223,5 +261,8 @@ namespace ktw {
 		vk::UniqueInstance instance;
 		vk::PhysicalDevice physicalDevice;
 		vk::UniqueSurfaceKHR surface;
+		vk::UniqueDevice device;
+		vk::Queue graphicsQueue;
+		vk::Queue presentQueue;
 	};
 } // namespace ktwq
