@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "build and debug",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}\\bin\\Debug-windows-x86_64\\ktwVulkanGameEngine\\ktwVulkanGameEngine.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": false,
+			"preLaunchTask": "build"
+		}
+	]
+}
