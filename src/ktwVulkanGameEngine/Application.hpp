@@ -1,9 +1,11 @@
 #pragma once
 
+#define NOMINMAX
+
+#include "Log.hpp"
+
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
-
-#define NOMINMAX
 
 #include <vector>
 #include <string>
@@ -13,7 +15,6 @@
 #include <algorithm>
 #include <optional>
 
-#include "Log.hpp"
 #include "Renderer.hpp"
 
 namespace ktw {
