@@ -3,18 +3,24 @@
 #include <ktwVulkanGameEngine/ktwVulkanGameEngine.hpp>
 
 class HelloTriangleApplication : public ktw::Application {
-	public:
+public:
 	HelloTriangleApplication(uint32_t width, uint32_t height) : ktw::Application(width, height) {
 
 	}
 
-	private:
-	void userSetup() {
+private:
+	ktw::GraphicsPipeline* graphicsPipeline;
+
+	void userSetup(ktw::Renderer& renderer) override {
+		graphicsPipeline = renderer.createGraphicsPipeline("shaders\\vert.spv", "shaders\\frag.spv");
+	}
+
+	void userUpdate(ktw::Renderer& renderer) override {
 
 	}
 
-	void userUpdate() {
-
+	void userCleanup(ktw::Renderer& renderer) override {
+		delete graphicsPipeline;
 	}
 };
 

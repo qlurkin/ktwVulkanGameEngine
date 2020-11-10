@@ -3,6 +3,8 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
+#define NOMINMAX
+
 #include <vector>
 #include <string>
 #include <set>
@@ -10,6 +12,9 @@
 #include <cstdint>
 #include <algorithm>
 #include <optional>
+
+#include "Log.hpp"
+#include "Renderer.hpp"
 
 namespace ktw {
 	#ifdef NDEBUG
@@ -30,14 +35,20 @@ namespace ktw {
 		void run() {
 			initWindow();
 			initVulkan();
-			userSetup();
+			userSetup(*renderer);
 			mainLoop();
+			userCleanup(*renderer);
 			cleanup();
 		}
 
+		ktw::Context& getContext() {
+			return context;
+		}
+
 	private:
-		virtual void userSetup() = 0;
-		virtual void userUpdate() = 0;
+		virtual void userSetup(ktw::Renderer& renderer) = 0;
+		virtual void userUpdate(ktw::Renderer& renderer) = 0;
+		virtual void userCleanup(ktw::Renderer& renderer) = 0;
 
 		struct QueueFamilyIndices {
 			std::optional<uint32_t> graphicsFamily;
@@ -76,12 +87,13 @@ namespace ktw {
 			createLogicalDevice();
 			createSwapChain();
 			createImageViews();
+			renderer.swap(std::unique_ptr<Renderer>(new Renderer(context)));
 		}
 
 		void mainLoop() {
 			while (!glfwWindowShouldClose(window)) {
 				glfwPollEvents();
-				userUpdate();
+				userUpdate(*renderer);
 			}
 		}
 
@@ -92,11 +104,11 @@ namespace ktw {
 
 		void createSurface() {
 			VkSurfaceKHR surface;
-			if(glfwCreateWindowSurface(*instance, window, nullptr, &surface) != VK_SUCCESS) {
+			if(glfwCreateWindowSurface(*(context.instance), window, nullptr, &surface) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create window surface!");
 			}
 
-			this->surface = vk::UniqueSurfaceKHR(surface, *instance);
+			context.surface = vk::UniqueSurfaceKHR(surface, *(context.instance));
 		}
 
 		void createInstance(std::vector<const char *> extensionNames) {
@@ -129,7 +141,7 @@ namespace ktw {
 					.setEnabledLayerCount(0);
 			}
 
-			instance = vk::createInstanceUnique(createInfo);
+			context.instance = vk::createInstanceUnique(createInfo);
 		}
 
 		void setupDebugMessenger() {
@@ -147,9 +159,9 @@ namespace ktw {
 				)
 				.setPfnUserCallback(debugCallback);
 
-			auto dldi = vk::DispatchLoaderDynamic(*instance, vkGetInstanceProcAddr);
+			auto dldi = vk::DispatchLoaderDynamic(*(context.instance), vkGetInstanceProcAddr);
 
-			instance->createDebugUtilsMessengerEXTUnique(createInfo, nullptr, dldi);
+			context.instance->createDebugUtilsMessengerEXTUnique(createInfo, nullptr, dldi);
 		}
 
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -188,9 +200,9 @@ namespace ktw {
 		SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice device) {
 			SwapChainSupportDetails details;
 
-			details.capabilities = device.getSurfaceCapabilitiesKHR(*surface);
-			details.formats = device.getSurfaceFormatsKHR(*surface);
-			details.presentModes = device.getSurfacePresentModesKHR(*surface);
+			details.capabilities = device.getSurfaceCapabilitiesKHR(*(context.surface));
+			details.formats = device.getSurfaceFormatsKHR(*(context.surface));
+			details.presentModes = device.getSurfacePresentModesKHR(*(context.surface));
 
 			return details;
 		}
@@ -229,14 +241,14 @@ namespace ktw {
 		}
 
 		void pickPhysicalDevice() {
-			auto physicalDevices = instance->enumeratePhysicalDevices();
+			auto physicalDevices = context.instance->enumeratePhysicalDevices();
 
 			int scoreMax = 0;
 
 			for (const auto& device : physicalDevices) {
 				int score = rateDeviceSuitability(device);
 				if (score > scoreMax) {
-					physicalDevice = device;
+					context.physicalDevice = device;
 					scoreMax = score;
 					break;
 				}
@@ -246,8 +258,8 @@ namespace ktw {
 				throw std::runtime_error("failed to find a suitable GPU!");
 			}
 
-			LOG_INFO("Selected GPU: {}", physicalDevice.getProperties().deviceName);
-			queueIndices = findQueueFamilies(physicalDevice);
+			LOG_INFO("Selected GPU: {}", context.physicalDevice.getProperties().deviceName);
+			queueIndices = findQueueFamilies(context.physicalDevice);
 		}
 
 		std::vector<uint32_t> findGraphicsQueueIndexes(vk::PhysicalDevice device) {
@@ -265,7 +277,7 @@ namespace ktw {
 			auto queueFamilyProperties = device.getQueueFamilyProperties();
 			std::vector<uint32_t> res;
 			for (uint32_t i = 0; i < queueFamilyProperties.size(); i++) {
-				if (device.getSurfaceSupportKHR(static_cast<uint32_t>(i), surface.get())) {
+				if (device.getSurfaceSupportKHR(static_cast<uint32_t>(i), context.surface.get())) {
 					res.push_back(i);
 				}
 			}
@@ -310,9 +322,9 @@ namespace ktw {
 				.setEnabledExtensionCount(static_cast<uint32_t>(deviceExtensions.size()))
 				.setPpEnabledExtensionNames(deviceExtensions.data());
 
-			device = physicalDevice.createDeviceUnique(createInfo);
-			graphicsQueue = device->getQueue(queueIndices.graphicsFamily.value(), 0);
-			presentQueue = device->getQueue(queueIndices.presentFamily.value(), 0);
+			context.device = context.physicalDevice.createDeviceUnique(createInfo);
+			context.graphicsQueue = context.device->getQueue(queueIndices.graphicsFamily.value(), 0);
+			context.presentQueue = context.device->getQueue(queueIndices.presentFamily.value(), 0);
 		}
 
 		vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) {
@@ -358,7 +370,7 @@ namespace ktw {
 		}
 
 		void createSwapChain() {
-			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(context.physicalDevice);
 
 			vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 			vk::PresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -371,7 +383,7 @@ namespace ktw {
 			}
 
 			auto createInfo = vk::SwapchainCreateInfoKHR()
-				.setSurface(*surface)
+				.setSurface(*(context.surface))
 				.setMinImageCount(imageCount)
 				.setImageFormat(surfaceFormat.format)
 				.setImageColorSpace(surfaceFormat.colorSpace)
@@ -398,20 +410,20 @@ namespace ktw {
 				.setPresentMode(presentMode)
 				.setClipped(VK_TRUE);
 
-			swapChain = device->createSwapchainKHRUnique(createInfo);
-			swapChainImages = device->getSwapchainImagesKHR(*swapChain);
-			swapChainImageFormat = surfaceFormat.format;
-			swapChainExtent = extent;
+			context.swapChain = context.device->createSwapchainKHRUnique(createInfo);
+			context.swapChainImages = context.device->getSwapchainImagesKHR(*(context.swapChain));
+			context.swapChainImageFormat = surfaceFormat.format;
+			context.swapChainExtent = extent;
 		}
 
 		void createImageViews() {
-			swapChainImageViews.resize(swapChainImages.size());
+			context.swapChainImageViews.resize(context.swapChainImages.size());
 
-			for (size_t i = 0; i < swapChainImages.size(); i++) {
+			for (size_t i = 0; i < context.swapChainImages.size(); i++) {
 				auto createInfo = vk::ImageViewCreateInfo()
-					.setImage(swapChainImages[i])
+					.setImage(context.swapChainImages[i])
 					.setViewType(vk::ImageViewType::e2D)
-					.setFormat(swapChainImageFormat)
+					.setFormat(context.swapChainImageFormat)
 					.setComponents({
 						vk::ComponentSwizzle::eIdentity,
 						vk::ComponentSwizzle::eIdentity,
@@ -422,7 +434,7 @@ namespace ktw {
 						.setAspectMask(vk::ImageAspectFlagBits::eColor)
 						.setLevelCount(1)
 						.setLayerCount(1));
-				swapChainImageViews[i] = device->createImageViewUnique(createInfo);
+				context.swapChainImageViews[i] = context.device->createImageViewUnique(createInfo);
 			}
 		}
 
@@ -433,17 +445,8 @@ namespace ktw {
 		uint32_t width;
 		uint32_t height;
 		GLFWwindow* window;
-		vk::UniqueInstance instance;
-		vk::PhysicalDevice physicalDevice;
-		vk::UniqueSurfaceKHR surface;
-		vk::UniqueDevice device;
-		vk::Queue graphicsQueue;
-		vk::Queue presentQueue;
 		QueueFamilyIndices queueIndices;
-		vk::UniqueSwapchainKHR swapChain;
-		std::vector<vk::Image> swapChainImages;
-		vk::Format swapChainImageFormat;
-		vk::Extent2D swapChainExtent;
-		std::vector<vk::UniqueImageView> swapChainImageViews;
+		ktw::Context context;
+		std::unique_ptr<Renderer> renderer;
 	};
 } // namespace ktwq

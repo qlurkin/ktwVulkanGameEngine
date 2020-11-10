@@ -9,6 +9,7 @@ workspace "ktwVulkanGameEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "vendor/glfw"
+--include "vendor/glslang"
 
 project "ktwVulkanGameEngine"
 	kind "ConsoleApp"
@@ -33,9 +34,13 @@ project "ktwVulkanGameEngine"
 		"$(VULKAN_SDK)/include"
 	}
 
+	libdirs {
+		"$(VULKAN_SDK)/Lib"
+	}
+
 	links {
 		"GLFW",
-		"$(VULKAN_SDK)/lib/vulkan-1.lib"
+		"vulkan-1"
 	}
 
 	filter "system:windows"
