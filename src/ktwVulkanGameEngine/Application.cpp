@@ -1,7 +1,5 @@
 #include "Application.hpp"
 
-#include "Log.hpp"
-
 #include <vector>
 #include <string>
 #include <set>

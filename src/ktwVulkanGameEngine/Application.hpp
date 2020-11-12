@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Log.hpp"
+
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 

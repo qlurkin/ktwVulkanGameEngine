@@ -3,7 +3,6 @@
 #define NOMINMAX
 
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace ktw {
 	class Log {
@@ -18,11 +17,7 @@ namespace ktw {
 		private:
 			std::shared_ptr<spdlog::logger> logger;
 
-			Log() {
-				spdlog::set_pattern("%^[%T] %n: %v%$");
-				logger = spdlog::stdout_color_mt("ktwVulkanGameEngine");
-				logger->set_level(spdlog::level::trace);
-			}
+			Log();
 	};
 }
 
