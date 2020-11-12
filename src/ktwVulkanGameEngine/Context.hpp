@@ -3,6 +3,8 @@
 #include <vulkan/vulkan.hpp>
 
 namespace ktw {
+	class CommandBuffer;
+
 	struct Context {
 		vk::UniqueInstance instance;
 		vk::PhysicalDevice physicalDevice;
@@ -15,5 +17,10 @@ namespace ktw {
 		vk::Format swapChainImageFormat;
 		vk::Extent2D swapChainExtent;
 		std::vector<vk::UniqueImageView> swapChainImageViews;
+		vk::UniqueRenderPass renderPass;
+		std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
+		vk::UniqueCommandPool commandPool;
+		uint32_t imageIndex;
+		std::vector<vk::CommandBuffer> postedCommandBuffers;
 	};
 }

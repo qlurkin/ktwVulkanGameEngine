@@ -10,8 +10,6 @@ namespace ktw {
 	class GraphicsPipeline {
 	public:
 		GraphicsPipeline(ktw::Context& context, const std::string& vertexShader, const std::string& fragmentShader) : context(context), vertexShader(context, vertexShader), fragmentShader(context, fragmentShader) {
-			createRenderPass();
-
 			auto vertShaderStageInfo = vk::PipelineShaderStageCreateInfo()
 				.setStage(vk::ShaderStageFlagBits::eVertex)
 				.setModule(*(this->vertexShader.getModule()))
@@ -123,7 +121,7 @@ namespace ktw {
 				.setPColorBlendState(&colorBlending)
 				.setPDynamicState(nullptr) // Optional
 				.setLayout(*pipelineLayout)
-				.setRenderPass(*renderPass)
+				.setRenderPass(*(context.renderPass))
 				.setSubpass(0)
 				.setBasePipelineHandle(nullptr) // Optional
 				.setBasePipelineIndex(-1); // Optional
@@ -131,40 +129,14 @@ namespace ktw {
 			pipeline = (context.device->createGraphicsPipelineUnique(nullptr, pipelineInfo)).value;
 		}
 
-		void createRenderPass() {
-			auto colorAttachment = vk::AttachmentDescription()
-				.setFormat(context.swapChainImageFormat)
-				.setSamples(vk::SampleCountFlagBits::e1)
-				.setLoadOp(vk::AttachmentLoadOp::eClear)
-				.setStoreOp(vk::AttachmentStoreOp::eStore)
-				.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-				.setInitialLayout(vk::ImageLayout::eUndefined)
-				.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
-
-			auto colorAttachmentRef = vk::AttachmentReference()
-				.setAttachment(0)
-				.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-			auto subpass = vk::SubpassDescription()
-				.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-				.setColorAttachmentCount(1)
-				.setPColorAttachments(&colorAttachmentRef);
-
-			auto renderPassInfo = vk::RenderPassCreateInfo()
-				.setAttachmentCount(1)
-				.setPAttachments(&colorAttachment)
-				.setSubpassCount(1)
-				.setPSubpasses(&subpass);
-
-			renderPass = context.device->createRenderPassUnique(renderPassInfo);
+		vk::Pipeline& getPipeline() {
+			return *pipeline;
 		}
 
 	private:
 		ktw::Context& context;
 		ktw::Shader vertexShader;
 		ktw::Shader fragmentShader;
-		vk::UniqueRenderPass renderPass;
 		vk::UniquePipelineLayout pipelineLayout;
 		vk::UniquePipeline pipeline;
 	};

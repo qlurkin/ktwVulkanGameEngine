@@ -88,14 +88,61 @@ namespace ktw {
 			createLogicalDevice();
 			createSwapChain();
 			createImageViews();
+			createRenderPass();
+			createFramebuffers();
+			createCommandPool();
+			createSemaphores();
 			renderer.swap(std::unique_ptr<Renderer>(new Renderer(context)));
 		}
 
 		void mainLoop() {
 			while (!glfwWindowShouldClose(window)) {
 				glfwPollEvents();
+				prepareFrame();
 				userUpdate(*renderer);
+				drawFrame();
 			}
+
+			context.device->waitIdle();
+		}
+		void prepareFrame() {
+			context.postedCommandBuffers.clear();
+			context.imageIndex = (context.device->acquireNextImageKHR(*(context.swapChain), UINT64_MAX, *imageAvailableSemaphore, {})).value;
+		}
+
+		void drawFrame() {
+			vk::Semaphore waitSemaphores[] = {*imageAvailableSemaphore};
+			vk::Semaphore signalSemaphores[] = {*renderFinishedSemaphore};
+			vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eTopOfPipe};
+			auto submitInfo = vk::SubmitInfo()
+				.setWaitSemaphoreCount(1)
+				.setPWaitSemaphores(waitSemaphores)
+				.setPWaitDstStageMask(waitStages)
+				.setCommandBufferCount(static_cast<uint32_t>(context.postedCommandBuffers.size()))
+				.setPCommandBuffers(context.postedCommandBuffers.data())
+				.setSignalSemaphoreCount(1)
+				.setPSignalSemaphores(signalSemaphores);
+			
+			if(context.graphicsQueue.submit(1, &submitInfo, {}) != vk::Result::eSuccess) {
+				throw std::runtime_error("Error while submitting command buffers");
+			}
+
+			vk::SwapchainKHR swapChains[] = {*(context.swapChain)};
+
+			auto presentInfo = vk::PresentInfoKHR()
+				.setWaitSemaphoreCount(1)
+				.setPWaitSemaphores(signalSemaphores)
+				.setSwapchainCount(1)
+				.setPSwapchains(swapChains)
+				.setPImageIndices(&(context.imageIndex))
+				.setPResults({}); // Optional
+
+			if(context.presentQueue.presentKHR(presentInfo) != vk::Result::eSuccess) {
+				throw std::runtime_error("Error while presenting image to swap chain");
+			}
+			
+			// TODO: Change this
+			context.presentQueue.waitIdle();
 		}
 
 		void cleanup() {
@@ -439,6 +486,69 @@ namespace ktw {
 			}
 		}
 
+		void createRenderPass() {
+			auto colorAttachment = vk::AttachmentDescription()
+				.setFormat(context.swapChainImageFormat)
+				.setSamples(vk::SampleCountFlagBits::e1)
+				.setLoadOp(vk::AttachmentLoadOp::eClear)
+				.setStoreOp(vk::AttachmentStoreOp::eStore)
+				.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+				.setInitialLayout(vk::ImageLayout::eUndefined)
+				.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
+
+			auto colorAttachmentRef = vk::AttachmentReference()
+				.setAttachment(0)
+				.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+
+			auto subpass = vk::SubpassDescription()
+				.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+				.setColorAttachmentCount(1)
+				.setPColorAttachments(&colorAttachmentRef);
+
+			auto renderPassInfo = vk::RenderPassCreateInfo()
+				.setAttachmentCount(1)
+				.setPAttachments(&colorAttachment)
+				.setSubpassCount(1)
+				.setPSubpasses(&subpass);
+
+			context.renderPass = context.device->createRenderPassUnique(renderPassInfo);
+		}
+
+		void createFramebuffers() {
+			context.swapChainFramebuffers.resize(context.swapChainImageViews.size());
+
+			for (size_t i = 0; i < context.swapChainImageViews.size(); i++) {
+				vk::ImageView attachments[] = {
+					*(context.swapChainImageViews[i])
+				};
+
+				auto framebufferInfo = vk::FramebufferCreateInfo()
+					.setRenderPass(*(context.renderPass))
+					.setAttachmentCount(1)
+					.setPAttachments(attachments)
+					.setWidth(context.swapChainExtent.width)
+					.setHeight(context.swapChainExtent.height)
+					.setLayers(1);
+
+				context.swapChainFramebuffers[i] = context.device->createFramebufferUnique(framebufferInfo);
+			}
+		}
+
+		void createCommandPool() {
+			auto poolInfo = vk::CommandPoolCreateInfo()
+				.setQueueFamilyIndex(queueIndices.graphicsFamily.value());
+
+			context.commandPool = context.device->createCommandPoolUnique(poolInfo);
+		}
+
+		void createSemaphores() {
+			auto semaphoreInfo = vk::SemaphoreCreateInfo();
+
+			imageAvailableSemaphore = context.device->createSemaphoreUnique(semaphoreInfo);
+			renderFinishedSemaphore = context.device->createSemaphoreUnique(semaphoreInfo);
+		}
+
 		const std::vector<const char*> deviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
@@ -449,5 +559,7 @@ namespace ktw {
 		QueueFamilyIndices queueIndices;
 		ktw::Context context;
 		std::unique_ptr<Renderer> renderer;
+		vk::UniqueSemaphore imageAvailableSemaphore;
+		vk::UniqueSemaphore renderFinishedSemaphore;
 	};
 } // namespace ktwq

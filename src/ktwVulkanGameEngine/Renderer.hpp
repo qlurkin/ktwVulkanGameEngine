@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Context.hpp"
-#include "GraphicsPipeline.hpp"
+#include "CommandBuffer.hpp"
 
 namespace ktw {
 
@@ -13,6 +13,14 @@ namespace ktw {
 		Renderer(ktw::Context& context) : context(context) {}
 		ktw::GraphicsPipeline* createGraphicsPipeline(std::string vertexShader, std::string fragmentShader) {
 			return new ktw::GraphicsPipeline(context, vertexShader, fragmentShader);
+		}
+
+		ktw::CommandBuffer* createCommandBuffer(ktw::GraphicsPipeline* pipeline) {
+			return new ktw::CommandBuffer(context, *pipeline);
+		}
+
+		void post(ktw::CommandBuffer* commandBuffer) {
+			context.postedCommandBuffers.push_back(commandBuffer->getCommandBuffer(context.imageIndex));
 		}
 
 	private:
