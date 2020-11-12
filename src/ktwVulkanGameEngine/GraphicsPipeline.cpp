@@ -1,7 +1,7 @@
 #include "GraphicsPipeline.hpp"
 
 namespace ktw {
-	GraphicsPipeline::GraphicsPipeline(ktw::Context& context, const std::string& vertexShader, const std::string& fragmentShader) : context(context), vertexShader(context, vertexShader), fragmentShader(context, fragmentShader) {
+	GraphicsPipeline::GraphicsPipeline(ktw::Context& context, const std::string& vertexShader, const std::string& fragmentShader, uint32_t vertexSize, std::vector<ktw::AttributeDescription> attributeDescriptions) : context(context), vertexShader(context, vertexShader), fragmentShader(context, fragmentShader) {
 		auto vertShaderStageInfo = vk::PipelineShaderStageCreateInfo()
 			.setStage(vk::ShaderStageFlagBits::eVertex)
 			.setModule(*(this->vertexShader.getModule()))
@@ -14,11 +14,14 @@ namespace ktw {
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
+		auto bindingDescription = getBindingDescription(vertexSize);
+		auto vertexInputAttributeDescriptions = getAttributeDescriptions(attributeDescriptions);
+
 		auto vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
-			.setVertexBindingDescriptionCount(0)
-			.setPVertexBindingDescriptions(nullptr) // Optional
-			.setVertexAttributeDescriptionCount(0)
-			.setPVertexAttributeDescriptions(nullptr); // Optional
+			.setVertexBindingDescriptionCount(1)
+			.setPVertexBindingDescriptions(&bindingDescription)
+			.setVertexAttributeDescriptionCount(static_cast<uint32_t>(vertexInputAttributeDescriptions.size()))
+			.setPVertexAttributeDescriptions(vertexInputAttributeDescriptions.data());
 
 		auto inputAssembly = vk::PipelineInputAssemblyStateCreateInfo()
 			.setTopology(vk::PrimitiveTopology::eTriangleList)
@@ -119,6 +122,28 @@ namespace ktw {
 			.setBasePipelineIndex(-1); // Optional
 
 		pipeline = (context.device->createGraphicsPipelineUnique(nullptr, pipelineInfo)).value;
+	}
+
+	vk::VertexInputBindingDescription GraphicsPipeline::getBindingDescription(uint32_t size) {
+		auto bindingDescription = vk::VertexInputBindingDescription()
+			.setBinding(0)
+			.setStride(size)
+			.setInputRate(vk::VertexInputRate::eVertex);
+
+		return bindingDescription;
+	}
+
+	std::vector<vk::VertexInputAttributeDescription> GraphicsPipeline::getAttributeDescriptions(std::vector<ktw::AttributeDescription> attributeDescriptions) {
+		std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescription(attributeDescriptions.size());
+		for(int i=0; i<attributeDescriptions.size(); i++) {
+			vertexInputAttributeDescription[i]
+				.setBinding(0)
+				.setLocation(attributeDescriptions[i].location)
+				.setFormat((vk::Format) attributeDescriptions[i].format)
+				.setOffset(attributeDescriptions[i].offset);
+		}
+
+		return vertexInputAttributeDescription;
 	}
 
 	vk::Pipeline& GraphicsPipeline::getPipeline() {

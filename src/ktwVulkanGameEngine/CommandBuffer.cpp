@@ -1,7 +1,7 @@
 #include "CommandBuffer.hpp"
 
 namespace ktw {
-	CommandBuffer::CommandBuffer(ktw::Context& context, ktw::GraphicsPipeline& pipeline) : context(context), pipeline(pipeline) {
+	CommandBuffer::CommandBuffer(ktw::Context& context, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer) : context(context), pipeline(pipeline), vertexBuffer(vertexBuffer) {
 		commandBuffers.resize(context.swapChainFramebuffers.size());
 		auto allocInfo = vk::CommandBufferAllocateInfo()
 			.setCommandPool(*(context.commandPool))
@@ -29,7 +29,13 @@ namespace ktw {
 			commandBuffers[i]->beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 
 			commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.getPipeline());
-			commandBuffers[i]->draw(3, 1, 0, 0);
+
+			vk::Buffer vertexBuffers[] = {vertexBuffer.getBuffer()};
+			vk::DeviceSize offsets[] = {0};
+
+			commandBuffers[i]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
+
+			commandBuffers[i]->draw(vertexBuffer.getCount(), 1, 0, 0);
 			
 			commandBuffers[i]->endRenderPass();
 
