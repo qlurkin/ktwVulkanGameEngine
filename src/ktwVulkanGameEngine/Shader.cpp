@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "Shader.hpp"
 
 #include <string>
@@ -5,8 +6,9 @@
 #include <streambuf>
 
 namespace ktw {
-	Shader::Shader(ktw::Context& context, const std::string& filename) : context(context) {
-		createShaderModule(readFile(filename));
+	Shader::Shader(ktw::Device& device, const std::string& filename) {
+		createShaderModule(device, readFile(filename));
+		LOG_TRACE("Shader {} created", filename);
 	}
 
 	vk::UniqueShaderModule& Shader::getModule() {
@@ -31,11 +33,11 @@ namespace ktw {
 		return buffer;
 	}
 
-	void Shader::createShaderModule(const std::vector<char>& code) {
+	void Shader::createShaderModule(ktw::Device& device, const std::vector<char>& code) {
 		auto createInfo = vk::ShaderModuleCreateInfo()
 			.setCodeSize(code.size())
 			.setPCode(reinterpret_cast<const uint32_t*>(code.data()));
 
-		module = context.device->createShaderModuleUnique(createInfo);
+		module = device.getDevice().createShaderModuleUnique(createInfo);
 	}
 }

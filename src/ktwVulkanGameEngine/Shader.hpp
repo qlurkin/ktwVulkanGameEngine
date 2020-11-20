@@ -1,18 +1,17 @@
 #pragma once
 
-#include "Context.hpp"
+#include "Device.hpp"
 
 namespace ktw {
 	class Shader {
 	public:
-		Shader(ktw::Context& context, const std::string& filename);
+		Shader(ktw::Device& device, const std::string& filename);
 		vk::UniqueShaderModule& getModule();
 
 	private:
-		ktw::Context& context;
 		vk::UniqueShaderModule module;
 
 		static std::vector<char> readFile(const std::string& filename);
-		void createShaderModule(const std::vector<char>& code);
+		void createShaderModule(ktw::Device& device, const std::vector<char>& code);
 	};
 }

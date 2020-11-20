@@ -2,17 +2,18 @@
 
 #include "GraphicsPipeline.hpp"
 #include "Buffer.hpp"
+#include "IRenderTarget.hpp"
+#include "Device.hpp"
 
 namespace ktw {
 	class CommandBuffer {
 	public:
-		CommandBuffer(ktw::Context& context, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer);
+		CommandBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer);
 		vk::CommandBuffer& getCommandBuffer(size_t i);
 		
 	private:
-		ktw::Context& context;
-		ktw::GraphicsPipeline& pipeline;
-		ktw::Buffer& vertexBuffer;
+		//ktw::GraphicsPipeline& pipeline;
+		//ktw::Buffer& vertexBuffer;
 		std::vector<vk::UniqueCommandBuffer> commandBuffers;
 	};
 }

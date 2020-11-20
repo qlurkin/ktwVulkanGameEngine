@@ -1,31 +1,33 @@
+#include "pch.hpp"
 #include "Buffer.hpp"
 
 namespace ktw {
-	Buffer::Buffer(ktw::Context& context, uint32_t itemSize, uint32_t count, void* data) : context(context), itemSize(itemSize), count(count) {
+	Buffer::Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, void* data) : itemSize(itemSize), count(count) {
 		auto bufferInfo = vk::BufferCreateInfo()
 			.setSize(itemSize * count)
 			.setUsage(vk::BufferUsageFlagBits::eVertexBuffer)
 			.setSharingMode(vk::SharingMode::eExclusive);
 
-		buffer = context.device->createBufferUnique(bufferInfo);
+		buffer = device.getDevice().createBufferUnique(bufferInfo);
 
-		vk::MemoryRequirements memRequirements = context.device->getBufferMemoryRequirements(*buffer);
+		vk::MemoryRequirements memRequirements = device.getDevice().getBufferMemoryRequirements(*buffer);
 
 		auto allocInfo = vk::MemoryAllocateInfo()
 			.setAllocationSize(memRequirements.size)
-			.setMemoryTypeIndex(findMemoryType(memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
+			.setMemoryTypeIndex(findMemoryType(device, memRequirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent));
 		
-		bufferMemory = context.device->allocateMemoryUnique(allocInfo);
+		bufferMemory = device.getDevice().allocateMemoryUnique(allocInfo);
 
-		context.device->bindBufferMemory(*buffer, *bufferMemory, 0);
+		device.getDevice().bindBufferMemory(*buffer, *bufferMemory, 0);
 
-		void* bufferData = context.device->mapMemory(*bufferMemory, 0, bufferInfo.size);
+		void* bufferData = device.getDevice().mapMemory(*bufferMemory, 0, bufferInfo.size);
 		memcpy(bufferData, data, (size_t) bufferInfo.size);
-		context.device->unmapMemory(*bufferMemory);
+		device.getDevice().unmapMemory(*bufferMemory);
+		LOG_TRACE("Buffer Created");
 	}
 
-	uint32_t Buffer::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
-		vk::PhysicalDeviceMemoryProperties memProperties = context.physicalDevice.getMemoryProperties();
+	uint32_t Buffer::findMemoryType(ktw::Device& device, uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
+		vk::PhysicalDeviceMemoryProperties memProperties = device.getPhysicalDevice().getMemoryProperties();
 		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
 			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
 				return i;

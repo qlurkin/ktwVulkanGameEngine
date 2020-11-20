@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Context.hpp"
+#include "IRenderTarget.hpp"
 #include "Shader.hpp"
 
 namespace ktw {
@@ -23,16 +23,11 @@ namespace ktw {
 
 	class GraphicsPipeline {
 	public:
-		GraphicsPipeline(ktw::Context& context, const std::string& vertexShader, const std::string& fragmentShader, uint32_t vertexSize, std::vector<ktw::AttributeDescription> attributeDescriptions);
+		GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, uint32_t vertexSize, std::vector<ktw::AttributeDescription>& attributeDescriptions);
 
-		vk::VertexInputBindingDescription getBindingDescription(uint32_t size);
-		std::vector<vk::VertexInputAttributeDescription> getAttributeDescriptions(std::vector<ktw::AttributeDescription> attributeDescriptions);
 		vk::Pipeline& getPipeline();
 
 	private:
-		ktw::Context& context;
-		ktw::Shader vertexShader;
-		ktw::Shader fragmentShader;
 		vk::UniquePipelineLayout pipelineLayout;
 		vk::UniquePipeline pipeline;
 	};

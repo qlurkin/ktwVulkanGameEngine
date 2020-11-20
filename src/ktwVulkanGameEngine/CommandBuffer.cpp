@@ -1,17 +1,19 @@
+#include "pch.hpp"
 #include "CommandBuffer.hpp"
 
 namespace ktw {
-	CommandBuffer::CommandBuffer(ktw::Context& context, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer) : context(context), pipeline(pipeline), vertexBuffer(vertexBuffer) {
-		commandBuffers.resize(context.swapChainFramebuffers.size());
+	CommandBuffer::CommandBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer) {
+		
+		auto framebuffers = renderTarget.getFrameBuffers();
 		auto allocInfo = vk::CommandBufferAllocateInfo()
-			.setCommandPool(*(context.commandPool))
+			.setCommandPool(device.getCommandPool())
 			.setLevel(vk::CommandBufferLevel::ePrimary)
-			.setCommandBufferCount((uint32_t) commandBuffers.size());
+			.setCommandBufferCount((uint32_t) framebuffers.size());
 
-		commandBuffers = context.device->allocateCommandBuffersUnique(allocInfo);
+		commandBuffers = device.getDevice().allocateCommandBuffersUnique(allocInfo);
 
 		vk::ClearValue clearColor(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
-		vk::Rect2D renderArea = { {0, 0}, context.swapChainExtent };
+		vk::Rect2D renderArea = { {0, 0}, renderTarget.getExtent() };
 
 		for (size_t i = 0; i < commandBuffers.size(); i++) {
 			auto beginInfo = vk::CommandBufferBeginInfo()
@@ -20,8 +22,8 @@ namespace ktw {
 			commandBuffers[i]->begin(beginInfo);
 
 			auto renderPassInfo = vk::RenderPassBeginInfo()
-				.setRenderPass(*(context.renderPass))
-				.setFramebuffer(*(context.swapChainFramebuffers[i]))
+				.setRenderPass(renderTarget.getRenderPass())
+				.setFramebuffer(framebuffers[i])
 				.setRenderArea(renderArea)
 				.setClearValueCount(1)
 				.setPClearValues(&clearColor);
@@ -41,6 +43,7 @@ namespace ktw {
 
 			commandBuffers[i]->end();
 		}
+		LOG_TRACE("Command Buffer Created");
 	}
 
 	vk::CommandBuffer& CommandBuffer::getCommandBuffer(size_t i) {
