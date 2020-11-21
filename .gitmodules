@@ -7,3 +7,6 @@
 [submodule "vendor/glm"]
 	path = vendor/glm
 	url = git@github.com:qlurkin/glm.git
+[submodule "vendor/glslang"]
+	path = vendor/glslang
+	url = git@github.com:qlurkin/glslang.git
