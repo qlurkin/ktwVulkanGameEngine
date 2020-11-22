@@ -9,7 +9,7 @@ workspace "ktwVulkanGameEngine"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "vendor/glfw"
---include "vendor/glslang"
+include "vendor/glslang"
 
 project "ktwVulkanGameEngine"
 	kind "ConsoleApp"
@@ -31,6 +31,7 @@ project "ktwVulkanGameEngine"
 		"vendor/spdlog/include",
 		"vendor/glfw/include",
 		"vendor/glm",
+		"vendor/glslang",
 		"$(VULKAN_SDK)/include"
 	}
 
@@ -40,6 +41,7 @@ project "ktwVulkanGameEngine"
 
 	links {
 		"GLFW",
+		"GLSLANG",
 		"vulkan-1"
 	}
 
