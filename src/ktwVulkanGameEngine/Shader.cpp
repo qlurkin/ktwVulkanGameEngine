@@ -1,10 +1,6 @@
 #include "pch.hpp"
 #include "Shader.hpp"
 
-#include <string>
-#include <fstream>
-#include <streambuf>
-
 namespace ktw {
 	Shader::Shader(ktw::Device& device, const std::string& filename) {
 		createShaderModule(device, readFile(filename));

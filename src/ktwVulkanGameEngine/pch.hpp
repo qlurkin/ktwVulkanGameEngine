@@ -10,5 +10,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <chrono>
+#include <fstream>
+#include <streambuf>
 
 #include "Log.hpp"
