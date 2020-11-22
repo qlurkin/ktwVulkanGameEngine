@@ -1,5 +1,6 @@
 bin
 bin-obj
+build
 *.sln
 *.vcxproj
 *.filters
