@@ -27,7 +27,8 @@ private:
 			{0, ktw::Format::eFloat2, offsetof(Vertex, pos)},
 			{1, ktw::Format::eFloat3, offsetof(Vertex, color)}
 		};
-		graphicsPipeline = renderer.createGraphicsPipeline("shaders\\vert.spv", "shaders\\frag.spv", sizeof(Vertex), attributeDescriptions);
+		//graphicsPipeline = renderer.createGraphicsPipeline("shaders\\vert.spv", "shaders\\frag.spv", sizeof(Vertex), attributeDescriptions);
+		graphicsPipeline = renderer.createGraphicsPipeline("shaders\\shader.vert", "shaders\\shader.frag", sizeof(Vertex), attributeDescriptions);
 		vertexBuffer = renderer.createBuffer(sizeof(Vertex), vertices.size(), vertices.data());
 		commandBuffer = renderer.createCommandBuffer(graphicsPipeline, vertexBuffer);
 	}

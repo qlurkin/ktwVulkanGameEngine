@@ -11,7 +11,7 @@ add_subdirectory(vendor/glfw deps/glfw)
 # GLSLANG
 #########################################
 
-# add_subdirectory(vendor/glslang deps/glslang)
+add_subdirectory(vendor/glslang deps/glslang)
 
 
 #########################################
@@ -28,13 +28,18 @@ find_package(Vulkan REQUIRED FATAL_ERROR)
 
 add_executable(${PROJECT_NAME})
 add_dependencies(${PROJECT_NAME} glfw)
+add_dependencies(${PROJECT_NAME} SPIRV)
+add_dependencies(${PROJECT_NAME} glslang)
 target_link_libraries(${PROJECT_NAME} ${Vulkan_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} SPIRV)
+target_link_libraries(${PROJECT_NAME} glslang)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
 	src
 	vendor/spdlog/include
 	vendor/glm
+	vendor/glslang
 	${GLFW_SOURCE_DIR}/include
 	${Vulkan_INCLUDE_DIRS}
 )

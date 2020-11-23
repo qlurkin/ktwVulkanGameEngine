@@ -7,6 +7,7 @@
                 "${workspaceFolder}/vendor/glfw/include",
                 "${workspaceFolder}/vendor/glm",
                 "${workspaceFolder}/vendor/spdlog/include",
+                "${workspaceFolder}/vendor/glslang",
                 "${VULKAN_SDK}/include"
             ],
             "defines": [

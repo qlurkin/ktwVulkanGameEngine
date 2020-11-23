@@ -12,6 +12,6 @@ namespace ktw {
 		vk::UniqueShaderModule module;
 
 		static std::vector<char> readFile(const std::string& filename);
-		void createShaderModule(ktw::Device& device, const std::vector<char>& code);
+		void createShaderModule(ktw::Device& device, const std::vector<uint32_t>& code);
 	};
 }

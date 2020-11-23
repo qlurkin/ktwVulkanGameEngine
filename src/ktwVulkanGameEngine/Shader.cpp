@@ -1,9 +1,10 @@
 #include "pch.hpp"
 #include "Shader.hpp"
+#include "ShaderCompiler.hpp"
 
 namespace ktw {
 	Shader::Shader(ktw::Device& device, const std::string& filename) {
-		createShaderModule(device, readFile(filename));
+		createShaderModule(device, CompileGLSL(filename));
 		LOG_TRACE("Shader {} created", filename);
 	}
 
@@ -29,10 +30,10 @@ namespace ktw {
 		return buffer;
 	}
 
-	void Shader::createShaderModule(ktw::Device& device, const std::vector<char>& code) {
+	void Shader::createShaderModule(ktw::Device& device, const std::vector<uint32_t>& code) {
 		auto createInfo = vk::ShaderModuleCreateInfo()
-			.setCodeSize(code.size())
-			.setPCode(reinterpret_cast<const uint32_t*>(code.data()));
+			.setCodeSize(code.size() * sizeof(uint32_t))
+			.setPCode(code.data());
 
 		module = device.getDevice().createShaderModuleUnique(createInfo);
 	}
