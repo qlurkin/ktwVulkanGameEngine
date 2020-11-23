@@ -6,10 +6,8 @@
 #include <SPIRV/GlslangToSpv.h>
 #include <StandAlone/DirStackFileIncluder.h>
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
+//#include <iostream>
+#include "pch.hpp"
 
 std::string GetFilePath(const std::string& str)
 {
@@ -165,6 +163,7 @@ static bool glslangInitialized = false;
 //TODO: Multithread, manage SpirV that doesn't need recompiling (only recompile when dirty)
 const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 {
+	LOG_INFO("Compiling {}", filename);
 	//TODO: Handle initialization / finalization once
 	// from source: "ShInitialize() should be called exactly once per process, not per thread."
 	if (!glslangInitialized)
@@ -178,7 +177,7 @@ const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 
 	if (!file.is_open()) 
 	{
-		std::cout << "Failed to load shader: " << filename << std::endl;
+		LOG_ERROR("Failed to load shader: {}", filename);
 		throw std::runtime_error("failed to open file: " + filename);
 	}
 
@@ -216,9 +215,7 @@ const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 
 	if (!Shader.preprocess(&Resources, DefaultVersion, ENoProfile, false, false, messages, &PreprocessedGLSL, Includer)) 
 	{
-		std::cout << "GLSL Preprocessing Failed for: " << filename << std::endl;
-		std::cout << Shader.getInfoLog() << std::endl;
-		std::cout << Shader.getInfoDebugLog() << std::endl;
+		LOG_ERROR("GLSL Preprocessing Failed for: {}\n{}\n{}", filename, Shader.getInfoLog(), Shader.getInfoDebugLog());
 	}
 
 	//std::cout << PreprocessedGLSL << std::endl;
@@ -228,9 +225,7 @@ const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 
 	if (!Shader.parse(&Resources, 100, false, messages))
 	{
-		std::cout << "GLSL Parsing Failed for: " << filename << std::endl;
-		std::cout << Shader.getInfoLog() << std::endl;
-		std::cout << Shader.getInfoDebugLog() << std::endl;
+		LOG_ERROR("GLSL Parsing Failed for: {}\n{}\n{}", filename, Shader.getInfoLog(), Shader.getInfoDebugLog());
 	}
 
 	glslang::TProgram Program;
@@ -238,9 +233,7 @@ const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 
 	if(!Program.link(messages))
 	{
-		std::cout << "GLSL Linking Failed for: " << filename << std::endl;
-		std::cout << Shader.getInfoLog() << std::endl;
-		std::cout << Shader.getInfoDebugLog() << std::endl;
+		LOG_ERROR("GLSL Linking Failed for: {}\n{}\n{}", filename, Shader.getInfoLog(), Shader.getInfoDebugLog());
 	}
 
 	// if (!Program.mapIO())
@@ -260,11 +253,11 @@ const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 
 	if (logger.getAllMessages().length() > 0)
 	{
-		std::cout << logger.getAllMessages() << std::endl;
+		LOG_WARN("{}", logger.getAllMessages());
 	}
 
 	//TODO: Handle startup shutdown separately from compile function
 	//glslang::FinalizeProcess();
-
+	LOG_INFO("{} Compiled", filename);
 	return SpirV;
 }
