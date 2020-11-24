@@ -2,10 +2,10 @@
 #include "Buffer.hpp"
 
 namespace ktw {
-	Buffer::Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, void* data) : itemSize(itemSize), count(count) {
+	Buffer::Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, ktw::BufferUsage usage, void* data) : itemSize(itemSize), count(count) {
 		auto bufferInfo = vk::BufferCreateInfo()
 			.setSize(itemSize * count)
-			.setUsage(vk::BufferUsageFlagBits::eVertexBuffer)
+			.setUsage((vk::BufferUsageFlagBits) usage)
 			.setSharingMode(vk::SharingMode::eExclusive);
 
 		buffer = device.getDevice().createBufferUnique(bufferInfo);

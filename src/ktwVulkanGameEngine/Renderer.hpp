@@ -17,7 +17,9 @@ namespace ktw {
 
 		ktw::GraphicsPipeline* createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, uint32_t vertexSize, std::vector<ktw::AttributeDescription>& attributeDescriptions);
 		ktw::CommandBuffer* createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer);
-		ktw::Buffer* createBuffer(uint32_t itemSize, size_t count, void* data);
+		ktw::Buffer* createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data);
+		ktw::Buffer* createVertexBuffer(uint32_t itemSize, size_t count, void* data);
+		ktw::Buffer* createIndexBuffer(size_t count, void* data);
 		void waitDeviceIdle();
 		void startFrame();
 		void endFrame();

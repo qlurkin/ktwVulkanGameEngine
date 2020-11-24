@@ -41,8 +41,8 @@ namespace ktw {
 		return new ktw::CommandBuffer(device, swapChain, *pipeline, *vertexBuffer);
 	}
 
-	ktw::Buffer* Renderer::createBuffer(uint32_t itemSize, size_t count, void* data) {
-		return new ktw::Buffer(device, itemSize, static_cast<uint32_t>(count), data);
+	ktw::Buffer* Renderer::createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data) {
+		return new ktw::Buffer(device, itemSize, static_cast<uint32_t>(count), usage, data);
 	}
 
 	void Renderer::waitDeviceIdle() {
@@ -59,5 +59,13 @@ namespace ktw {
 
 	void Renderer::post(ktw::CommandBuffer* commandBuffer) {
 		postedCommandBuffers.push_back(commandBuffer);
+	}
+
+	ktw::Buffer* Renderer::createVertexBuffer(uint32_t itemSize, size_t count, void* data) {
+		return createBuffer(itemSize, count, ktw::BufferUsage::eVertexBuffer, data);
+	}
+
+	ktw::Buffer* Renderer::createIndexBuffer(size_t count, void* data) {
+		return createBuffer(sizeof(uint32_t), count, ktw::BufferUsage::eIndexBuffer, data);
 	}
 }

@@ -3,9 +3,14 @@
 #include "Device.hpp"
 
 namespace ktw {
+	enum BufferUsage {
+		eVertexBuffer = vk::BufferUsageFlagBits::eVertexBuffer,
+		eIndexBuffer = vk::BufferUsageFlagBits::eIndexBuffer
+	};
+	
 	class Buffer {
 	public:
-		Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, void* data);
+		Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, ktw::BufferUsage usage, void* data);
 
 		vk::Buffer& getBuffer();
 		uint32_t getItemSize();
