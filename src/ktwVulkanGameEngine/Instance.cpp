@@ -84,6 +84,6 @@ namespace ktw {
 
 		auto dldi = vk::DispatchLoaderDynamic(*(instance), vkGetInstanceProcAddr);
 
-		instance->createDebugUtilsMessengerEXTUnique(createInfo, nullptr, dldi);
+		messenger = instance->createDebugUtilsMessengerEXTUnique(createInfo, nullptr, dldi);
 	}
 }

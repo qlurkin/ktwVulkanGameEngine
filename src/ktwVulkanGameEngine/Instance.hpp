@@ -10,6 +10,7 @@ namespace ktw {
 
 	private:
 		vk::UniqueInstance instance;
+		vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderDynamic> messenger;
 
 		void setupDebugMessenger();
 	};
