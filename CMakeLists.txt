@@ -35,6 +35,8 @@ target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} SPIRV)
 target_link_libraries(${PROJECT_NAME} glslang)
 
+target_precompile_headers(${PROJECT_NAME} PUBLIC src/ktwVulkanGameEngine/pch.hpp)
+
 target_include_directories(${PROJECT_NAME} PUBLIC
 	src
 	vendor/spdlog/include
