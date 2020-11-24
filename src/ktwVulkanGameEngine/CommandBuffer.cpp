@@ -2,7 +2,7 @@
 #include "CommandBuffer.hpp"
 
 namespace ktw {
-	CommandBuffer::CommandBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer) {
+	CommandBuffer::CommandBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer, ktw::Buffer& indexBuffer) {
 		
 		auto framebuffers = renderTarget.getFrameBuffers();
 		auto allocInfo = vk::CommandBufferAllocateInfo()
@@ -37,7 +37,9 @@ namespace ktw {
 
 			commandBuffers[i]->bindVertexBuffers(0, 1, vertexBuffers, offsets);
 
-			commandBuffers[i]->draw(vertexBuffer.getCount(), 1, 0, 0);
+			commandBuffers[i]->bindIndexBuffer(indexBuffer.getBuffer(), 0, vk::IndexType::eUint32);
+
+			commandBuffers[i]->drawIndexed(indexBuffer.getCount(), 1, 0, 0, 0);
 			
 			commandBuffers[i]->endRenderPass();
 

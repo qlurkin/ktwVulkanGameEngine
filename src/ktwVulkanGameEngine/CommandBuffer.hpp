@@ -8,7 +8,7 @@
 namespace ktw {
 	class CommandBuffer {
 	public:
-		CommandBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer);
+		CommandBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, ktw::GraphicsPipeline& pipeline, ktw::Buffer& vertexBuffer, ktw::Buffer& indexBuffer);
 		vk::CommandBuffer& getCommandBuffer(size_t i);
 		
 	private:
