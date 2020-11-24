@@ -2,7 +2,7 @@
 #include "GraphicsPipeline.hpp"
 
 namespace ktw {
-	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, uint32_t vertexSize, std::vector<ktw::AttributeDescription>& attributeDescriptions) {
+	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings) {
 		ktw::Shader vertexShader(device, vertexShaderFile);
 		ktw::Shader fragmentShader(device, fragmentShaderFile);
 
@@ -18,23 +18,31 @@ namespace ktw {
 
 		vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
-		auto bindingDescription = vk::VertexInputBindingDescription()
-			.setBinding(0)
-			.setStride(vertexSize)
-			.setInputRate(vk::VertexInputRate::eVertex);
+		std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions(vertexBufferBindings.size());
+		size_t vertexInputAttributeDescriptionsCount = 0;
+		for(size_t i=0; i<vertexBufferBindings.size(); i++) {
+			vertexInputBindingDescriptions[i]
+				.setBinding(vertexBufferBindings[i].binding)
+				.setStride(vertexBufferBindings[i].size)
+				.setInputRate(vk::VertexInputRate::eVertex);
+			vertexInputAttributeDescriptionsCount += vertexBufferBindings[i].attributeDescriptions.size();
+		}
 
-		std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions(attributeDescriptions.size());
-		for(int i=0; i<attributeDescriptions.size(); i++) {
-			vertexInputAttributeDescriptions[i]
-				.setBinding(0)
-				.setLocation(attributeDescriptions[i].location)
-				.setFormat((vk::Format) attributeDescriptions[i].format)
-				.setOffset(attributeDescriptions[i].offset);
+		std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions(vertexInputAttributeDescriptionsCount);
+		size_t vertexInputAttributeDescriptionsIndex = 0;
+		for(int i=0; i<vertexBufferBindings.size(); i++) {
+			for(int j=0; j<vertexBufferBindings[i].attributeDescriptions.size(); j++) {
+				vertexInputAttributeDescriptions[vertexInputAttributeDescriptionsIndex++]
+					.setBinding(vertexBufferBindings[i].binding)
+					.setLocation(vertexBufferBindings[i].attributeDescriptions[j].location)
+					.setFormat((vk::Format) vertexBufferBindings[i].attributeDescriptions[j].format)
+					.setOffset(vertexBufferBindings[i].attributeDescriptions[j].offset);
+			}
 		}
 
 		auto vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
-			.setVertexBindingDescriptionCount(1)
-			.setPVertexBindingDescriptions(&bindingDescription)
+			.setVertexBindingDescriptionCount(static_cast<uint32_t>(vertexInputBindingDescriptions.size()))
+			.setPVertexBindingDescriptions(vertexInputBindingDescriptions.data())
 			.setVertexAttributeDescriptionCount(static_cast<uint32_t>(vertexInputAttributeDescriptions.size()))
 			.setPVertexAttributeDescriptions(vertexInputAttributeDescriptions.data());
 

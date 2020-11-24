@@ -33,12 +33,12 @@ namespace ktw {
 		return surface;
 	}
 	
-	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, uint32_t vertexSize, std::vector<ktw::AttributeDescription>& attributeDescriptions) {
-		return new ktw::GraphicsPipeline(device, swapChain, vertexShader, fragmentShader, vertexSize, attributeDescriptions);
+	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings) {
+		return new ktw::GraphicsPipeline(device, swapChain, vertexShader, fragmentShader, vertexBufferBindings);
 	}
 
-	ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer) {
-		return new ktw::CommandBuffer(device, swapChain, *pipeline, *vertexBuffer);
+	ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
+		return new ktw::CommandBuffer(device, swapChain, *pipeline, *vertexBuffer, *indexBuffer);
 	}
 
 	ktw::Buffer* Renderer::createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data) {

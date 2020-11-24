@@ -7,6 +7,12 @@ struct Vertex {
 	glm::vec3 color;
 };
 
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
+
 class HelloTriangleApplication : public ktw::Application {
 public:
 	HelloTriangleApplication(uint32_t width, uint32_t height) : ktw::Application(width, height) {}
@@ -26,15 +32,21 @@ private:
 	std::vector<uint32_t> indices = {0, 1, 2};
 
 	void userSetup(ktw::Renderer& renderer) override {
-		std::vector<ktw::AttributeDescription> attributeDescriptions = {
-			{0, ktw::Format::eFloat2, offsetof(Vertex, pos)},
-			{1, ktw::Format::eFloat3, offsetof(Vertex, color)}
-		};
-
-		graphicsPipeline = renderer.createGraphicsPipeline("shaders\\shader.vert", "shaders\\shader.frag", sizeof(Vertex), attributeDescriptions);
+		graphicsPipeline = renderer.createGraphicsPipeline(
+			"shaders\\shader.vert",
+			"shaders\\shader.frag",
+			{{
+				0,
+				sizeof(Vertex),
+				{
+					{0, ktw::Format::eFloat2, offsetof(Vertex, pos)},
+					{1, ktw::Format::eFloat3, offsetof(Vertex, color)}
+				}
+			}}
+		);
 		vertexBuffer = renderer.createVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
 		indexBuffer = renderer.createIndexBuffer(indices.size(), indices.data());
-		commandBuffer = renderer.createCommandBuffer(graphicsPipeline, vertexBuffer);
+		commandBuffer = renderer.createCommandBuffer(graphicsPipeline, vertexBuffer, indexBuffer);
 	}
 
 	void userUpdate(ktw::Renderer& renderer) override {
@@ -55,7 +67,7 @@ int main() {
 	try {
 		app.run();
 	} catch (const std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		LOG_ERROR("Unhandeld Exception: {}", e.what());
 		return EXIT_FAILURE;
 	}
 

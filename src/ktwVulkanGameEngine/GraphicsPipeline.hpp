@@ -21,14 +21,39 @@ namespace ktw {
 		uint32_t offset;
 	};
 
+	struct VertexBufferBinding {
+		uint32_t binding;
+		uint32_t size;
+		std::vector<ktw::AttributeDescription> attributeDescriptions;
+	};
+
+	struct UniformDescriptor {
+		uint32_t binding;
+		uint32_t size;
+		void* data;
+	};
+
 	class GraphicsPipeline {
 	public:
-		GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, uint32_t vertexSize, std::vector<ktw::AttributeDescription>& attributeDescriptions);
-
+		GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings);
 		vk::Pipeline& getPipeline();
+		
+		template<typename T>
+		void setUniformBufferOject(uint32_t binding) {
+			uniformBufferObject[typeid(T)] = {
+				sizeof(T),
+				binding,
+				new T
+			};
+		}
+		template<typename T>
+		T* getUniformBufferOject() {
+			return uniformBufferObject[typeid(T)].data;
+		}
 
 	private:
 		vk::UniquePipelineLayout pipelineLayout;
 		vk::UniquePipeline pipeline;
+		std::unordered_map<std::type_index, UniformDescriptor> uniformBufferObject;
 	};
 }
