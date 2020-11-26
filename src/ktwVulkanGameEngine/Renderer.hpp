@@ -17,11 +17,12 @@ namespace ktw {
 	public:
 		Renderer(GLFWwindow* window, uint32_t width, uint32_t height);
 
-		ktw::GraphicsPipeline* createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings);
+		ktw::GraphicsPipeline* createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
 		ktw::CommandBuffer* createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer);
 		ktw::Buffer* createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data);
 		ktw::Buffer* createVertexBuffer(uint32_t itemSize, size_t count, void* data);
 		ktw::Buffer* createIndexBuffer(size_t count, void* data);
+		ktw::UniformBuffer* createUniformBuffer(ktw::IRenderTarget* renderTarget, uint32_t size);
 		void waitDeviceIdle();
 		void startFrame();
 		void endFrame();

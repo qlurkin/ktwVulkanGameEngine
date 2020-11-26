@@ -33,8 +33,8 @@ namespace ktw {
 		return surface;
 	}
 	
-	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings) {
-		return new ktw::GraphicsPipeline(device, swapChain, vertexShader, fragmentShader, vertexBufferBindings);
+	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
+		return new ktw::GraphicsPipeline(device, swapChain, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
 	}
 
 	ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
@@ -51,6 +51,7 @@ namespace ktw {
 
 	void Renderer::startFrame() {
 		postedCommandBuffers.clear();
+		swapChain.acquireImage();
 	}
 
 	void Renderer::endFrame() {
@@ -67,5 +68,9 @@ namespace ktw {
 
 	ktw::Buffer* Renderer::createIndexBuffer(size_t count, void* data) {
 		return createBuffer(sizeof(uint32_t), count, ktw::BufferUsage::eIndexBuffer, data);
+	}
+
+	ktw::UniformBuffer* Renderer::createUniformBuffer(ktw::IRenderTarget* renderTarget, uint32_t size) {
+		return new ktw::UniformBuffer(device, *renderTarget, size);
 	}
 }

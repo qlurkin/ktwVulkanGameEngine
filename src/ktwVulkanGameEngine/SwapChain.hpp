@@ -14,6 +14,8 @@ namespace ktw {
 		vk::RenderPass& getRenderPass() override;
 		void submit(std::vector<ktw::CommandBuffer*>& commandBuffers) override;
 		std::vector<vk::Framebuffer>& getFrameBuffers() override;
+		void acquireImage() override;
+		uint32_t acquiredImageIndex() override;
 
 	private:
 		int width, height;
@@ -27,6 +29,7 @@ namespace ktw {
 		std::vector<vk::UniqueFramebuffer> swapChainFramebuffers;
 		std::vector<vk::Framebuffer> framebuffers; // Must be a better way
 		uint32_t imageIndex;
+		bool imageAcquired;
 		vk::UniqueSemaphore imageAvailableSemaphore;
 		vk::UniqueSemaphore renderFinishedSemaphore;
 

@@ -57,5 +57,6 @@ target_sources(${PROJECT_NAME} PUBLIC
 	src/ktwVulkanGameEngine/Renderer.cpp
 	src/ktwVulkanGameEngine/Shader.cpp
 	src/ktwVulkanGameEngine/SwapChain.cpp
+	src/ktwVulkanGameEngine/UniformBuffer.cpp
 	src/main.cpp
 )

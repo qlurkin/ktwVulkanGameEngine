@@ -2,7 +2,7 @@
 #include "GraphicsPipeline.hpp"
 
 namespace ktw {
-	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings) {
+	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
 		ktw::Shader vertexShader(device, vertexShaderFile);
 		ktw::Shader fragmentShader(device, fragmentShaderFile);
 
@@ -49,6 +49,24 @@ namespace ktw {
 		auto inputAssembly = vk::PipelineInputAssemblyStateCreateInfo()
 			.setTopology(vk::PrimitiveTopology::eTriangleList)
 			.setPrimitiveRestartEnable(false);
+
+		std::vector<vk::DescriptorSetLayoutBinding> uboLayoutBindings(uniformDescriptors.size());
+		uniformBuffers.reserve(uniformDescriptors.size());
+		for(size_t i = 0; i < uniformDescriptors.size(); i++) {
+			uboLayoutBindings[i]
+				.setBinding(uniformDescriptors[i].binding)
+				.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+				.setDescriptorCount(1)
+				.setStageFlags((vk::ShaderStageFlagBits) uniformDescriptors[i].stage)
+				.setPImmutableSamplers({}); // Optional
+			uniformBuffers.emplace_back(device, renderTarget, uniformDescriptors[i].size);
+		}
+
+		auto layoutInfo = vk::DescriptorSetLayoutCreateInfo()
+			.setBindingCount(static_cast<uint32_t>(uboLayoutBindings.size()))
+			.setPBindings(uboLayoutBindings.data());
+
+		descriptorSetLayout = device.getDevice().createDescriptorSetLayoutUnique(layoutInfo);
 
 		auto viewport = vk::Viewport()
 			.setX(0.0f)
@@ -120,8 +138,8 @@ namespace ktw {
 			.setPDynamicStates(dynamicStates);
 
 		auto pipelineLayoutInfo = vk::PipelineLayoutCreateInfo()
-			.setSetLayoutCount(0) // Optional
-			.setPSetLayouts(nullptr) // Optional
+			.setSetLayoutCount(1)
+			.setPSetLayouts(&(*descriptorSetLayout))
 			.setPushConstantRangeCount(0) // Optional
 			.setPPushConstantRanges(nullptr); // Optional
 

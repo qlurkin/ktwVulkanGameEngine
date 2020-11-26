@@ -4,6 +4,7 @@
 
 #include "IRenderTarget.hpp"
 #include "Shader.hpp"
+#include "UniformBuffer.hpp"
 
 namespace ktw {
 	enum Format {
@@ -27,33 +28,26 @@ namespace ktw {
 		std::vector<ktw::AttributeDescription> attributeDescriptions;
 	};
 
+	enum ShaderStage {
+		eVertex = vk::ShaderStageFlagBits::eVertex,
+		eFragment = vk::ShaderStageFlagBits::eFragment
+	};
+
 	struct UniformDescriptor {
 		uint32_t binding;
+		ktw::ShaderStage stage;
 		uint32_t size;
-		void* data;
 	};
 
 	class GraphicsPipeline {
 	public:
-		GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings);
+		GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
 		vk::Pipeline& getPipeline();
-		
-		template<typename T>
-		void setUniformBufferOject(uint32_t binding) {
-			uniformBufferObject[typeid(T)] = {
-				sizeof(T),
-				binding,
-				new T
-			};
-		}
-		template<typename T>
-		T* getUniformBufferOject() {
-			return uniformBufferObject[typeid(T)].data;
-		}
 
 	private:
+		vk::UniqueDescriptorSetLayout descriptorSetLayout;
 		vk::UniquePipelineLayout pipelineLayout;
 		vk::UniquePipeline pipeline;
-		std::unordered_map<std::type_index, UniformDescriptor> uniformBufferObject;
+		std::vector<ktw::UniformBuffer> uniformBuffers;
 	};
 }

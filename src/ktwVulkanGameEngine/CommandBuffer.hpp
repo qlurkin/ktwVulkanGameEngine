@@ -12,8 +12,6 @@ namespace ktw {
 		vk::CommandBuffer& getCommandBuffer(size_t i);
 		
 	private:
-		//ktw::GraphicsPipeline& pipeline;
-		//ktw::Buffer& vertexBuffer;
 		std::vector<vk::UniqueCommandBuffer> commandBuffers;
 	};
 }

@@ -2,7 +2,7 @@
 #include "Buffer.hpp"
 
 namespace ktw {
-	Buffer::Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, ktw::BufferUsage usage, void* data) : itemSize(itemSize), count(count) {
+	Buffer::Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, ktw::BufferUsage usage, void* data) : itemSize(itemSize), count(count), device(device) {
 		auto bufferInfo = vk::BufferCreateInfo()
 			.setSize(itemSize * count)
 			.setUsage((vk::BufferUsageFlagBits) usage)
@@ -20,9 +20,10 @@ namespace ktw {
 
 		device.getDevice().bindBufferMemory(*buffer, *bufferMemory, 0);
 
-		void* bufferData = device.getDevice().mapMemory(*bufferMemory, 0, bufferInfo.size);
-		memcpy(bufferData, data, (size_t) bufferInfo.size);
-		device.getDevice().unmapMemory(*bufferMemory);
+		if(data) {
+			setData(data);
+		}
+		
 		LOG_TRACE("Buffer Created");
 	}
 
@@ -47,5 +48,11 @@ namespace ktw {
 
 	uint32_t Buffer::getCount() {
 		return count;
+	}
+
+	void Buffer::setData(void* data) {
+		void* bufferData = device.getDevice().mapMemory(*bufferMemory, 0, itemSize*count);
+		memcpy(bufferData, data, (size_t) itemSize*count);
+		device.getDevice().unmapMemory(*bufferMemory);
 	}
 }

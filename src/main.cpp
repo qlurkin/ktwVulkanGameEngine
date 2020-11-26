@@ -42,6 +42,11 @@ private:
 					{0, ktw::Format::eFloat2, offsetof(Vertex, pos)},
 					{1, ktw::Format::eFloat3, offsetof(Vertex, color)}
 				}
+			}},
+			{{
+				0,
+				ktw::ShaderStage::eVertex,
+				sizeof(UniformBufferObject)
 			}}
 		);
 		vertexBuffer = renderer.createVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());

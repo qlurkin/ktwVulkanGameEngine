@@ -2,7 +2,7 @@
 #include "SwapChain.hpp"
 
 namespace ktw {
-	SwapChain::SwapChain(ktw::Device& device, vk::SurfaceKHR& surface, int width, int height) : width(width), height(height), device(device) {
+	SwapChain::SwapChain(ktw::Device& device, vk::SurfaceKHR& surface, int width, int height) : width(width), height(height), device(device), imageAcquired(false) {
 		createSwapChain(device, surface);
 		createImageViews(device);
 		createRenderPass(device);
@@ -202,9 +202,18 @@ namespace ktw {
 		return framebuffers;
 	}
 
-	void SwapChain::submit(std::vector<ktw::CommandBuffer*>& commandBuffers) {
+	void SwapChain::acquireImage() {
+		if(imageAcquired) {
+			throw std::runtime_error("Image already acquired");
+		}
 		imageIndex = (device.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, *imageAvailableSemaphore, {})).value;
+		imageAcquired = true;
+	}
 
+	void SwapChain::submit(std::vector<ktw::CommandBuffer*>& commandBuffers) {
+		if(!imageAcquired) {
+			throw std::runtime_error("No image acquired");
+		}
 		std::vector<vk::CommandBuffer> vulkanCommandBuffers(commandBuffers.size());
 		for(size_t i = 0; i < commandBuffers.size(); i++) {
 			vulkanCommandBuffers[i] = commandBuffers[i]->getCommandBuffer(imageIndex);
@@ -242,6 +251,12 @@ namespace ktw {
 		
 		// TODO: Change this
 		device.getPresentQueue().waitIdle();
+		imageAcquired = false;
 	}
-	
+
+	uint32_t SwapChain::acquiredImageIndex() {
+		if(imageAcquired)
+			return imageIndex;
+		throw std::runtime_error("No acquired Image");
+	}
 }

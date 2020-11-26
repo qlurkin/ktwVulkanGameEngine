@@ -5,7 +5,8 @@
 namespace ktw {
 	enum BufferUsage {
 		eVertexBuffer = vk::BufferUsageFlagBits::eVertexBuffer,
-		eIndexBuffer = vk::BufferUsageFlagBits::eIndexBuffer
+		eIndexBuffer = vk::BufferUsageFlagBits::eIndexBuffer,
+		eUniformBuffer = vk::BufferUsageFlagBits::eUniformBuffer
 	};
 	
 	class Buffer {
@@ -15,7 +16,9 @@ namespace ktw {
 		vk::Buffer& getBuffer();
 		uint32_t getItemSize();
 		uint32_t getCount();
+		void setData(void* data);
 	private:
+		ktw::Device& device;
 		vk::UniqueBuffer buffer;
 		vk::UniqueDeviceMemory bufferMemory;
 		uint32_t count;
