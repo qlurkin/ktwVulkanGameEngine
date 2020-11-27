@@ -16,6 +16,8 @@ namespace ktw {
 		std::vector<vk::Framebuffer>& getFrameBuffers() override;
 		void acquireImage() override;
 		uint32_t acquiredImageIndex() override;
+		void setDescriptorPoolSize(uint32_t size) override;
+		vk::DescriptorPool& getDescriptorPool() override;
 
 	private:
 		int width, height;
@@ -32,6 +34,8 @@ namespace ktw {
 		bool imageAcquired;
 		vk::UniqueSemaphore imageAvailableSemaphore;
 		vk::UniqueSemaphore renderFinishedSemaphore;
+		vk::UniqueDescriptorPool descriptorPool;
+		bool descriptorPoolCreated;
 
 		void createSurface(VkSurfaceKHR surface);
 		
@@ -43,5 +47,6 @@ namespace ktw {
 		void createRenderPass(ktw::Device& device);
 		void createFramebuffers(ktw::Device& device);
 		void createSemaphores(ktw::Device& device);
+		void createDescriptorPool(ktw::Device& device, uint32_t size);
 	};
 }

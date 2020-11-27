@@ -27,6 +27,7 @@ namespace ktw {
 		void startFrame();
 		void endFrame();
 		void post(ktw::CommandBuffer* commandBuffer);
+		void setDescriptorPoolSize(uint32_t size);
 
 	private:
 		ktw::Instance instance;

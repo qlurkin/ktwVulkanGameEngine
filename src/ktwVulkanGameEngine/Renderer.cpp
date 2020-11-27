@@ -73,4 +73,8 @@ namespace ktw {
 	ktw::UniformBuffer* Renderer::createUniformBuffer(ktw::IRenderTarget* renderTarget, uint32_t size) {
 		return new ktw::UniformBuffer(device, *renderTarget, size);
 	}
+
+	void Renderer::setDescriptorPoolSize(uint32_t size) {
+		swapChain.setDescriptorPoolSize(size);
+	}
 }

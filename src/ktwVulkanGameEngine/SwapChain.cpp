@@ -2,7 +2,7 @@
 #include "SwapChain.hpp"
 
 namespace ktw {
-	SwapChain::SwapChain(ktw::Device& device, vk::SurfaceKHR& surface, int width, int height) : width(width), height(height), device(device), imageAcquired(false) {
+	SwapChain::SwapChain(ktw::Device& device, vk::SurfaceKHR& surface, int width, int height) : width(width), height(height), device(device), imageAcquired(false), descriptorPoolCreated(false) {
 		createSwapChain(device, surface);
 		createImageViews(device);
 		createRenderPass(device);
@@ -258,5 +258,34 @@ namespace ktw {
 		if(imageAcquired)
 			return imageIndex;
 		throw std::runtime_error("No acquired Image");
+	}
+
+	void SwapChain::createDescriptorPool(ktw::Device& device, uint32_t size) {
+		auto poolSize = vk::DescriptorPoolSize()
+			.setType(vk::DescriptorType::eUniformBuffer)
+			.setDescriptorCount(size * static_cast<uint32_t>(swapChainImages.size()));
+
+		auto poolInfo = vk::DescriptorPoolCreateInfo()
+			.setPoolSizeCount(1)
+			.setPPoolSizes(&poolSize)
+			.setMaxSets(size * static_cast<uint32_t>(swapChainImages.size()));
+
+		descriptorPool = device.getDevice().createDescriptorPoolUnique(poolInfo);
+		descriptorPoolCreated = true;
+		LOG_TRACE("Descriptor Pool Created");
+	}
+
+	void SwapChain::setDescriptorPoolSize(uint32_t size) {
+		if(descriptorPoolCreated) {
+			throw std::runtime_error("Descriptor Pool already created");
+		}
+		createDescriptorPool(device, size);
+	}
+
+	vk::DescriptorPool& SwapChain::getDescriptorPool() {
+		if(!descriptorPoolCreated) {
+			setDescriptorPoolSize(2);
+		}
+		return *descriptorPool;
 	}
 }
