@@ -2,7 +2,7 @@
 #include "GraphicsPipeline.hpp"
 
 namespace ktw {
-	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
+	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, uint32_t width, uint32_t height, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
 		ktw::Shader vertexShader(device, vertexShaderFile);
 		ktw::Shader fragmentShader(device, fragmentShaderFile);
 
@@ -71,14 +71,14 @@ namespace ktw {
 		auto viewport = vk::Viewport()
 			.setX(0.0f)
 			.setY(0.0f)
-			.setWidth((float) renderTarget.getExtent().width)
-			.setHeight((float) renderTarget.getExtent().height)
+			.setWidth((float) width)
+			.setHeight((float) height)
 			.setMinDepth(0.0f)
 			.setMaxDepth(1.0f);
 
 		auto scissor = vk::Rect2D()
 			.setOffset({0, 0})
-			.setExtent(renderTarget.getExtent());
+			.setExtent({width, height});
 
 		auto viewportState = vk::PipelineViewportStateCreateInfo()
 			.setViewportCount(1)
@@ -157,7 +157,7 @@ namespace ktw {
 			.setPColorBlendState(&colorBlending)
 			.setPDynamicState(nullptr) // Optional
 			.setLayout(*pipelineLayout)
-			.setRenderPass(renderTarget.getRenderPass())
+			.setRenderPass(renderPass)
 			.setSubpass(0)
 			.setBasePipelineHandle(nullptr) // Optional
 			.setBasePipelineIndex(-1); // Optional

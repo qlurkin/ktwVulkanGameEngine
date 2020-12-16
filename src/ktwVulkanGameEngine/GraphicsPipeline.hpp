@@ -41,7 +41,7 @@ namespace ktw {
 
 	class GraphicsPipeline {
 	public:
-		GraphicsPipeline(ktw::Device& device, ktw::IRenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
+		GraphicsPipeline(ktw::Device& device, uint32_t width, uint32_t height, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
 		vk::Pipeline& getPipeline();
 
 	private:

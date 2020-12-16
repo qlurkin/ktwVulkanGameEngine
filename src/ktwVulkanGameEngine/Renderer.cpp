@@ -33,8 +33,8 @@ namespace ktw {
 		return surface;
 	}
 	
-	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
-		return new ktw::GraphicsPipeline(device, swapChain, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
+	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(uint32_t width, uint32_t height, vk::RenderPass renderPass, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
+		return new ktw::GraphicsPipeline(device, width, height, renderPass, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
 	}
 
 	/*ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
