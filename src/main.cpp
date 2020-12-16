@@ -43,11 +43,12 @@ private:
 					{1, ktw::Format::eFloat3, offsetof(Vertex, color)}
 				}
 			}},
-			{{
-				0,
-				ktw::ShaderStage::eVertex,
-				sizeof(UniformBufferObject)
-			}}
+			{
+				// {
+				// 	0,
+				// 	ktw::ShaderStage::eVertex
+				// }
+			}
 		);
 		vertexBuffer = renderer.createVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
 		indexBuffer = renderer.createIndexBuffer(indices.size(), indices.data());

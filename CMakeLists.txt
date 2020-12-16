@@ -58,5 +58,8 @@ target_sources(${PROJECT_NAME} PUBLIC
 	src/ktwVulkanGameEngine/Shader.cpp
 	src/ktwVulkanGameEngine/SwapChain.cpp
 	src/ktwVulkanGameEngine/UniformBuffer.cpp
+	src/ktwVulkanGameEngine/DescriptorSet.cpp
+	src/ktwVulkanGameEngine/CommandPool.cpp
+	src/ktwVulkanGameEngine/FrameBuffer.cpp
 	src/main.cpp
 )

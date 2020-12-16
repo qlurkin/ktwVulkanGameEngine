@@ -7,11 +7,12 @@
 namespace ktw {
 	class UniformBuffer {
 	public:
-		UniformBuffer(ktw::Device& device, ktw::IRenderTarget& renderTarget, uint32_t size);
+		UniformBuffer(ktw::Device& device, uint32_t size);
 		void setData(void* data);
+		uint32_t getSize();
+		vk::Buffer getBuffer();
 	private:
 		uint32_t size;
-		std::vector<ktw::Buffer> uniformBuffers;
-		ktw::IRenderTarget& renderTarget;
+		ktw::Buffer uniformBuffer;
 	};
 }

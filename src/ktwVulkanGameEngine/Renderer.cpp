@@ -6,12 +6,9 @@ namespace ktw {
 		instance(getGlfwRequiredInstanceExtensions()),
 		surface(vk::UniqueSurfaceKHR(getSurfaceFromGlfw(window, instance.getInstance()), instance.getInstance())),
 		device(instance, *surface),
-		swapChain(device, *surface, width, height)
+		swapChain(device, *surface, width, height),
+		commandPool(device)
 	{
-		/*instance = new ktw::Instance(getGlfwRequiredInstanceExtensions());
-		surface = new vk::UniqueSurfaceKHR(getSurfaceFromGlfw(window, instance->getInstance()), instance->getInstance());
-		device = new ktw::Device(*instance, **surface);
-		swapChain = new ktw::SwapChain(*device, **surface, width, height);*/
 		LOG_TRACE("Renderer Created");
 	}
 
@@ -37,9 +34,9 @@ namespace ktw {
 		return new ktw::GraphicsPipeline(device, swapChain, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
 	}
 
-	ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
+	/*ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
 		return new ktw::CommandBuffer(device, swapChain, *pipeline, *vertexBuffer, *indexBuffer);
-	}
+	}*/
 
 	ktw::Buffer* Renderer::createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data) {
 		return new ktw::Buffer(device, itemSize, static_cast<uint32_t>(count), usage, data);
@@ -49,18 +46,36 @@ namespace ktw {
 		device.getDevice().waitIdle();
 	}
 
-	void Renderer::startFrame() {
+	void Renderer::startFrame(vk::Framebuffer frameBuffer) {
+		renderingFrameBuffer = frameBuffer;
+		renderingFrame = true;
 		postedCommandBuffers.clear();
-		swapChain.acquireImage();
 	}
 
 	void Renderer::endFrame() {
-		swapChain.submit(postedCommandBuffers);
+		//swapChain.submit(postedCommandBuffers);
+
+		vk::Semaphore signalSemaphores[] = {*renderFinishedSemaphore};
+		vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eTopOfPipe};
+		auto submitInfo = vk::SubmitInfo()
+			.setWaitSemaphoreCount(1)
+			.setPWaitSemaphores(waitSemaphores)
+			.setPWaitDstStageMask(waitStages)
+			.setCommandBufferCount(static_cast<uint32_t>(vulkanCommandBuffers.size()))
+			.setPCommandBuffers(vulkanCommandBuffers.data())
+			.setSignalSemaphoreCount(1)
+			.setPSignalSemaphores(signalSemaphores);
+		
+		if(device.getGraphicsQueue().submit(1, &submitInfo, {}) != vk::Result::eSuccess) {
+			throw std::runtime_error("Error while submitting command buffers");
+		}
+		
+		renderingFrame = false;
 	}
 
-	void Renderer::post(ktw::CommandBuffer* commandBuffer) {
-		postedCommandBuffers.push_back(commandBuffer);
-	}
+	// void Renderer::post(ktw::CommandBuffer* commandBuffer) {
+	// 	postedCommandBuffers.push_back(commandBuffer);
+	// }
 
 	ktw::Buffer* Renderer::createVertexBuffer(uint32_t itemSize, size_t count, void* data) {
 		return createBuffer(itemSize, count, ktw::BufferUsage::eVertexBuffer, data);
@@ -70,11 +85,48 @@ namespace ktw {
 		return createBuffer(sizeof(uint32_t), count, ktw::BufferUsage::eIndexBuffer, data);
 	}
 
-	ktw::UniformBuffer* Renderer::createUniformBuffer(ktw::IRenderTarget* renderTarget, uint32_t size) {
-		return new ktw::UniformBuffer(device, *renderTarget, size);
+	ktw::UniformBuffer* Renderer::createUniformBuffer(uint32_t size) {
+		return new ktw::UniformBuffer(device, size);
 	}
 
 	void Renderer::setDescriptorPoolSize(uint32_t size) {
 		swapChain.setDescriptorPoolSize(size);
 	}
+
+	void Renderer::startCommandBuffer() {
+		if(recordingCommand) {
+			throw std::runtime_error("Already recording a command buffer");
+		}
+
+		recordingCommandBuffer = commandPool.getCommandBuffer();
+		recordingCommand = true;
+
+		vk::ClearValue clearColor(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		vk::Rect2D renderArea = { {0, 0}, swapChain.getExtent() };
+		
+		auto beginInfo = vk::CommandBufferBeginInfo()
+			.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+
+		recordingCommandBuffer.begin(beginInfo);
+
+		auto renderPassInfo = vk::RenderPassBeginInfo()
+				.setRenderPass(swapChain.getRenderPass())
+				.setFramebuffer(renderingFrameBuffer)
+				.setRenderArea(renderArea)
+				.setClearValueCount(1)
+				.setPClearValues(&clearColor);
+
+		recordingCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+	}
+
+	void Renderer::endCommandBuffer() {
+		if(!recordingCommand) {
+			throw std::runtime_error("No command buffer started");
+		}
+		recordingCommandBuffer.endRenderPass();
+		recordingCommandBuffer.end();
+		postedCommandBuffers.push_back(recordingCommandBuffer);
+		recordingCommand = false;
+	}
+
 }

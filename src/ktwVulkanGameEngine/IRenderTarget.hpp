@@ -11,7 +11,7 @@ namespace ktw {
 		virtual std::vector<vk::Framebuffer>& getFrameBuffers() = 0;
 		virtual void acquireImage() = 0;
 		virtual uint32_t acquiredImageIndex() = 0;
-		virtual void submit(std::vector<ktw::CommandBuffer*>& commandBuffers) = 0;
+		virtual void submit(std::vector<ktw::CommandBuffer>& commandBuffers) = 0;
 		virtual vk::DescriptorPool& getDescriptorPool() = 0;
 		virtual void setDescriptorPoolSize(uint32_t size) = 0;
 	};

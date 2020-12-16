@@ -9,7 +9,6 @@ namespace ktw {
 	Device::Device(ktw::Instance& instance, vk::SurfaceKHR& surface) {
 		pickPhysicalDevice(instance, surface);
 		createLogicalDevice();
-		createCommandPool();
 		LOG_TRACE("Device Created");
 	}
 
@@ -165,18 +164,6 @@ namespace ktw {
 		graphicsQueue = device->getQueue(queueIndices.graphicsFamily.value(), 0);
 		presentQueue = device->getQueue(queueIndices.presentFamily.value(), 0);
 		LOG_TRACE("Logical Device Created");
-	}
-
-	void Device::createCommandPool() {
-		auto poolInfo = vk::CommandPoolCreateInfo()
-			.setQueueFamilyIndex(getGraphicsQueueIndex());
-
-		commandPool = device->createCommandPoolUnique(poolInfo);
-		LOG_TRACE("Command Pool Created");
-	}
-
-	vk::CommandPool& Device::getCommandPool() {
-		return *commandPool;
 	}
 
 	uint32_t Device::getGraphicsQueueIndex() {

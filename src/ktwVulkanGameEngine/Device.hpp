@@ -16,7 +16,6 @@ namespace ktw {
 		vk::Queue& getPresentQueue();
 		uint32_t getGraphicsQueueIndex();
 		uint32_t getPresentQueueIndex();
-		vk::CommandPool& getCommandPool();
 
 	private:
 		struct QueueFamilyIndices {
@@ -39,7 +38,6 @@ namespace ktw {
 		vk::Queue graphicsQueue;
 		vk::Queue presentQueue;
 		QueueFamilyIndices queueIndices;
-		vk::UniqueCommandPool commandPool;
 
 		bool checkDeviceExtensionSupport(vk::PhysicalDevice& device, const std::vector<const char*>& deviceExtensions);
 		int rateDeviceSuitability(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);  // 0 means not suitable
@@ -48,6 +46,5 @@ namespace ktw {
 		std::vector<uint32_t> findPresentQueueIndexes(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
 		QueueFamilyIndices findQueueFamilies(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
 		void createLogicalDevice();
-		void createCommandPool();
 	};
 }

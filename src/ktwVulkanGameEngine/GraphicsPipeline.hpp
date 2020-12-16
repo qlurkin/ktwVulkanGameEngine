@@ -36,7 +36,7 @@ namespace ktw {
 	struct UniformDescriptor {
 		uint32_t binding;
 		ktw::ShaderStage stage;
-		uint32_t size;
+		//ktw::UniformBuffer& buffer;
 	};
 
 	class GraphicsPipeline {
@@ -48,6 +48,7 @@ namespace ktw {
 		vk::UniqueDescriptorSetLayout descriptorSetLayout;
 		vk::UniquePipelineLayout pipelineLayout;
 		vk::UniquePipeline pipeline;
-		std::vector<ktw::UniformBuffer> uniformBuffers;
+		//std::vector<ktw::UniformBuffer*> uniformBuffers;
+		//std::vector<vk::DescriptorSet> descriptorSets;
 	};
 }
