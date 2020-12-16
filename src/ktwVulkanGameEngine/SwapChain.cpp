@@ -166,11 +166,11 @@ namespace ktw {
 	}
 
 	void SwapChain::createSemaphores(ktw::Device& device) {
-		auto semaphoreInfo = vk::SemaphoreCreateInfo();
+		//auto semaphoreInfo = vk::SemaphoreCreateInfo();
 		auto fenceInfo = vk::FenceCreateInfo();
 
 		imageAvailableFence = device.getDevice().createFenceUnique(fenceInfo);
-		renderFinishedSemaphore = device.getDevice().createSemaphoreUnique(semaphoreInfo);
+		//renderFinishedSemaphore = device.getDevice().createSemaphoreUnique(semaphoreInfo);
 		LOG_TRACE("Semaphore/Fence Created");
 	}
 

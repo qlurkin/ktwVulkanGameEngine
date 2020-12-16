@@ -27,6 +27,7 @@ namespace ktw {
 		void waitDeviceIdle();
 		void startFrame(vk::Framebuffer frameBuffer);
 		void endFrame();
+		void waitEndOfRender();
 		//void post(ktw::CommandBuffer* commandBuffer);
 		void setDescriptorPoolSize(uint32_t size);
 		void startCommandBuffer();
@@ -43,6 +44,7 @@ namespace ktw {
 		bool renderingFrame = false;
 		bool recordingCommand = false;
 		ktw::CommandPool commandPool;
+		vk::UniqueFence renderFinishedFence;
 
 		static std::vector<const char*> getGlfwRequiredInstanceExtensions();
 		static vk::SurfaceKHR getSurfaceFromGlfw(GLFWwindow* window, vk::Instance& instance);

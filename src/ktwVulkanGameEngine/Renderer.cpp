@@ -9,6 +9,9 @@ namespace ktw {
 		swapChain(device, *surface, width, height),
 		commandPool(device)
 	{
+		auto fenceInfo = vk::FenceCreateInfo();
+		renderFinishedFence = device.getDevice().createFenceUnique(fenceInfo);
+
 		LOG_TRACE("Renderer Created");
 	}
 
@@ -55,21 +58,24 @@ namespace ktw {
 	void Renderer::endFrame() {
 		//swapChain.submit(postedCommandBuffers);
 
-		vk::Semaphore signalSemaphores[] = {*renderFinishedSemaphore};
+		//vk::Semaphore signalSemaphores[] = {*renderFinishedSemaphore};
 		vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eTopOfPipe};
 		auto submitInfo = vk::SubmitInfo()
-			.setWaitSemaphoreCount(1)
-			.setPWaitSemaphores(waitSemaphores)
+			//.setWaitSemaphoreCount(1)
+			//.setPWaitSemaphores(waitSemaphores)
 			.setPWaitDstStageMask(waitStages)
-			.setCommandBufferCount(static_cast<uint32_t>(vulkanCommandBuffers.size()))
-			.setPCommandBuffers(vulkanCommandBuffers.data())
-			.setSignalSemaphoreCount(1)
-			.setPSignalSemaphores(signalSemaphores);
+			.setCommandBufferCount(static_cast<uint32_t>(postedCommandBuffers.size()))
+			.setPCommandBuffers(postedCommandBuffers.data());
+			//.setSignalSemaphoreCount(1)
+			//.setPSignalSemaphores(signalSemaphores);
 		
-		if(device.getGraphicsQueue().submit(1, &submitInfo, {}) != vk::Result::eSuccess) {
+		if(device.getGraphicsQueue().submit(1, &submitInfo, *renderFinishedFence) != vk::Result::eSuccess) {
 			throw std::runtime_error("Error while submitting command buffers");
 		}
-		
+	}
+
+	void Renderer::waitEndOfRender() {
+		device.getDevice().waitForFences(1, &(*renderFinishedFence), true, UINT64_MAX);
 		renderingFrame = false;
 	}
 
@@ -89,9 +95,9 @@ namespace ktw {
 		return new ktw::UniformBuffer(device, size);
 	}
 
-	void Renderer::setDescriptorPoolSize(uint32_t size) {
-		swapChain.setDescriptorPoolSize(size);
-	}
+	// void Renderer::setDescriptorPoolSize(uint32_t size) {
+	// 	swapChain.setDescriptorPoolSize(size);
+	// }
 
 	void Renderer::startCommandBuffer() {
 		if(recordingCommand) {

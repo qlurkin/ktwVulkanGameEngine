@@ -35,7 +35,7 @@ namespace ktw {
 		uint32_t imageIndex;
 		bool imageAcquired;
 		vk::UniqueFence imageAvailableFence;
-		vk::UniqueSemaphore renderFinishedSemaphore;
+		//vk::UniqueSemaphore renderFinishedSemaphore;
 		//vk::UniqueDescriptorPool descriptorPool;
 		//bool descriptorPoolCreated;
 
