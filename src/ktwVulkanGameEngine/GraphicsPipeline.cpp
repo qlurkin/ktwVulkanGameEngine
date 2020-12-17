@@ -2,9 +2,9 @@
 #include "GraphicsPipeline.hpp"
 
 namespace ktw {
-	GraphicsPipeline::GraphicsPipeline(ktw::Device& device, uint32_t width, uint32_t height, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
-		ktw::Shader vertexShader(device, vertexShaderFile);
-		ktw::Shader fragmentShader(device, fragmentShaderFile);
+	GraphicsPipeline::GraphicsPipeline(ktw::Context& context, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
+		ktw::Shader vertexShader(context, vertexShaderFile);
+		ktw::Shader fragmentShader(context, fragmentShaderFile);
 
 		auto vertShaderStageInfo = vk::PipelineShaderStageCreateInfo()
 			.setStage(vk::ShaderStageFlagBits::eVertex)
@@ -66,19 +66,19 @@ namespace ktw {
 			.setBindingCount(static_cast<uint32_t>(uboLayoutBindings.size()))
 			.setPBindings(uboLayoutBindings.data());
 
-		descriptorSetLayout = device.getDevice().createDescriptorSetLayoutUnique(layoutInfo);
+		descriptorSetLayout = context.getDevice().createDescriptorSetLayoutUnique(layoutInfo);
 
 		auto viewport = vk::Viewport()
 			.setX(0.0f)
 			.setY(0.0f)
-			.setWidth((float) width)
-			.setHeight((float) height)
+			.setWidth((float) context.getWidth())
+			.setHeight((float) context.getHeight())
 			.setMinDepth(0.0f)
 			.setMaxDepth(1.0f);
 
 		auto scissor = vk::Rect2D()
 			.setOffset({0, 0})
-			.setExtent({width, height});
+			.setExtent({context.getWidth(), context.getHeight()});
 
 		auto viewportState = vk::PipelineViewportStateCreateInfo()
 			.setViewportCount(1)
@@ -143,7 +143,7 @@ namespace ktw {
 			.setPushConstantRangeCount(0) // Optional
 			.setPPushConstantRanges(nullptr); // Optional
 
-		pipelineLayout = device.getDevice().createPipelineLayoutUnique(pipelineLayoutInfo);
+		pipelineLayout = context.getDevice().createPipelineLayoutUnique(pipelineLayoutInfo);
 
 		auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
 			.setStageCount(2)
@@ -162,7 +162,7 @@ namespace ktw {
 			.setBasePipelineHandle(nullptr) // Optional
 			.setBasePipelineIndex(-1); // Optional
 
-		pipeline = (device.getDevice().createGraphicsPipelineUnique(nullptr, pipelineInfo)).value;
+		pipeline = (context.getDevice().createGraphicsPipelineUnique(nullptr, pipelineInfo)).value;
 		LOG_TRACE("Graphics Pipeline Created");
 	}
 

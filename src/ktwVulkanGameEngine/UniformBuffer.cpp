@@ -2,7 +2,7 @@
 #include "UniformBuffer.hpp"
 
 namespace ktw {
-	UniformBuffer::UniformBuffer(ktw::Device& device, uint32_t size) : size(size), uniformBuffer(device, size, 1, ktw::BufferUsage::eUniformBuffer, nullptr) {
+	UniformBuffer::UniformBuffer(ktw::Context& context, uint32_t size) : size(size), uniformBuffer(context, size, 1, ktw::BufferUsage::eUniformBuffer, nullptr) {
 	}
 
 	void UniformBuffer::setData(void* data) {

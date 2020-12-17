@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Device.hpp"
+#include "Context.hpp"
 
 namespace ktw {
 	enum BufferUsage {
@@ -11,19 +11,19 @@ namespace ktw {
 	
 	class Buffer {
 	public:
-		Buffer(ktw::Device& device, uint32_t itemSize, uint32_t count, ktw::BufferUsage usage, void* data);
+		Buffer(ktw::Context& context, uint32_t itemSize, uint32_t count, ktw::BufferUsage usage, void* data);
 
 		vk::Buffer& getBuffer();
 		uint32_t getItemSize();
 		uint32_t getCount();
 		void setData(void* data);
 	private:
-		ktw::Device& device;
+		ktw::Context& context;
 		vk::UniqueBuffer buffer;
 		vk::UniqueDeviceMemory bufferMemory;
 		uint32_t count;
 		uint32_t itemSize;
 
-		uint32_t findMemoryType(ktw::Device& device, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
+		uint32_t findMemoryType(ktw::Context& context, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 	};
 }

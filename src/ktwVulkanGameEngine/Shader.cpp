@@ -3,8 +3,8 @@
 #include "ShaderCompiler.hpp"
 
 namespace ktw {
-	Shader::Shader(ktw::Device& device, const std::string& filename) {
-		createShaderModule(device, CompileGLSL(filename));
+	Shader::Shader(ktw::Context& context, const std::string& filename) {
+		createShaderModule(context, CompileGLSL(filename));
 		LOG_TRACE("Shader {} created", filename);
 	}
 
@@ -30,11 +30,11 @@ namespace ktw {
 		return buffer;
 	}
 
-	void Shader::createShaderModule(ktw::Device& device, const std::vector<uint32_t>& code) {
+	void Shader::createShaderModule(ktw::Context& context, const std::vector<uint32_t>& code) {
 		auto createInfo = vk::ShaderModuleCreateInfo()
 			.setCodeSize(code.size() * sizeof(uint32_t))
 			.setPCode(code.data());
 
-		module = device.getDevice().createShaderModuleUnique(createInfo);
+		module = context.getDevice().createShaderModuleUnique(createInfo);
 	}
 }

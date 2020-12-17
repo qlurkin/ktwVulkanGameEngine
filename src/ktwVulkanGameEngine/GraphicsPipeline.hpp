@@ -5,6 +5,7 @@
 #include "IRenderTarget.hpp"
 #include "Shader.hpp"
 #include "UniformBuffer.hpp"
+#include "Context.hpp"
 
 namespace ktw {
 	enum Format {
@@ -41,7 +42,7 @@ namespace ktw {
 
 	class GraphicsPipeline {
 	public:
-		GraphicsPipeline(ktw::Device& device, uint32_t width, uint32_t height, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
+		GraphicsPipeline(ktw::Context& context, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
 		vk::Pipeline& getPipeline();
 
 	private:

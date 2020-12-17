@@ -156,7 +156,7 @@ namespace ktw {
 		swapChainFramebuffers.reserve(swapChainImageViews.size());
 
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-			swapChainFramebuffers.emplace_back(context, swapChainImageViews[i], renderPass);
+			swapChainFramebuffers.emplace_back(context, *(swapChainImageViews[i]), *renderPass);
 		}
 
 		LOG_TRACE("Framebuffers ({}) Created", swapChainFramebuffers.size());
@@ -181,7 +181,7 @@ namespace ktw {
 
 	ktw::FrameBuffer& SwapChain::nextFrameBuffer() {
 		imageIndex = (context.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, {}, *imageAvailableFence)).value;
-		context.getDevice().waitForFences(1, &(*imageAvailableFence), true, UINT64_MAX);
+		auto result = context.getDevice().waitForFences(1, &(*imageAvailableFence), true, UINT64_MAX);
 		return swapChainFramebuffers[imageIndex];
 	}
 

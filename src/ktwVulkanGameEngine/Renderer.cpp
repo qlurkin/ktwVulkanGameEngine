@@ -17,7 +17,7 @@ namespace ktw {
 	}
 	
 	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(uint32_t width, uint32_t height, vk::RenderPass renderPass, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
-		return new ktw::GraphicsPipeline(device, width, height, renderPass, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
+		return new ktw::GraphicsPipeline(context, renderPass, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
 	}
 
 	/*ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
@@ -25,7 +25,7 @@ namespace ktw {
 	}*/
 
 	ktw::Buffer* Renderer::createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data) {
-		return new ktw::Buffer(device, itemSize, static_cast<uint32_t>(count), usage, data);
+		return new ktw::Buffer(context, itemSize, static_cast<uint32_t>(count), usage, data);
 	}
 
 	void Renderer::waitDeviceIdle() {
@@ -57,7 +57,7 @@ namespace ktw {
 	}
 
 	void Renderer::waitEndOfRender() {
-		context.getDevice().waitForFences(1, &(*renderFinishedFence), true, UINT64_MAX);
+		auto result = context.getDevice().waitForFences(1, &(*renderFinishedFence), true, UINT64_MAX);
 		renderingFrameBuffer = nullptr;
 	}
 

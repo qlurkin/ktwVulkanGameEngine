@@ -49,7 +49,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_sources(${PROJECT_NAME} PUBLIC
 	src/ktwVulkanGameEngine/Application.cpp
 	src/ktwVulkanGameEngine/Buffer.cpp
-	src/ktwVulkanGameEngine/CommandBuffer.cpp
+	# src/ktwVulkanGameEngine/CommandBuffer.cpp
 	src/ktwVulkanGameEngine/Device.cpp
 	src/ktwVulkanGameEngine/GraphicsPipeline.cpp
 	src/ktwVulkanGameEngine/Instance.cpp
