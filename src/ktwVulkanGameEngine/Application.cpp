@@ -29,7 +29,23 @@ namespace ktw {
 	}
 
 	void Application::initVulkan() {
-		renderer = std::make_unique<ktw::Renderer>(window, width, height);
+		uint32_t glfwExtensionCount = 0;
+		const char** glfwExtensions;
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+		std::vector<const char*> extensionNames(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+		instance = std::make_unique<ktw::Instance>(extensionNames);
+
+		VkSurfaceKHR surface;
+		if(glfwCreateWindowSurface(instance->getInstance(), window, nullptr, &surface) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create window surface!");
+		}
+
+		context = std::make_unique<ktw::Context>(*instance, surface, width, height);
+
+		swapChain = std::make_unique<ktw::SwapChain>(*context);
+
+		renderer = std::make_unique<ktw::Renderer>(*context);
 	}
 
 	void Application::mainLoop() {
@@ -43,9 +59,12 @@ namespace ktw {
 				ss << "ktwVulkanGameEngine" << " [" << 1000.0/frameTime.count() << " FPS]";
 				glfwSetWindowTitle(window, ss.str().c_str());
 				start = end;
-				renderer->startFrame();
+				ktw::FrameBuffer& frame = swapChain->nextFrameBuffer();
+				renderer->startFrame(frame);
 				userUpdate(*renderer);
 				renderer->endFrame();
+				renderer->waitEndOfRender();
+				swapChain->present(frame);
 			}
 			
 		}

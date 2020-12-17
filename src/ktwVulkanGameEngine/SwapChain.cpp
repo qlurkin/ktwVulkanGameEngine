@@ -2,12 +2,12 @@
 #include "SwapChain.hpp"
 
 namespace ktw {
-	SwapChain::SwapChain(ktw::Device& device, vk::SurfaceKHR& surface, uint32_t width, uint32_t height) : width(width), height(height), device(device), imageAcquired(false) {
-		createSwapChain(device, surface);
-		createImageViews(device);
-		createRenderPass(device);
-		createFramebuffers(device);
-		createSemaphores(device);
+	SwapChain::SwapChain(ktw::Context& context) : context(context), imageAcquired(false) {
+		createSwapChain();
+		createImageViews();
+		createRenderPass();
+		createFramebuffers();
+		createSemaphores();
 	}
 
 	vk::SurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) {
@@ -34,12 +34,9 @@ namespace ktw {
 		if (capabilities.currentExtent.width != UINT32_MAX) {
 			return capabilities.currentExtent;
 		} else {
-			//int width, height;
-			//glfwGetFramebufferSize(window, &width, &height);
-
 			vk::Extent2D actualExtent = {
-				static_cast<uint32_t>(width),
-				static_cast<uint32_t>(height)
+				static_cast<uint32_t>(context.getWidth()),
+				static_cast<uint32_t>(context.getHeight())
 			};
 
 			actualExtent.width = std::min(capabilities.maxImageExtent.width, actualExtent.width);
@@ -52,10 +49,10 @@ namespace ktw {
 		}
 	}
 
-	void SwapChain::createSwapChain(ktw::Device& device, vk::SurfaceKHR& surface) {
-		vk::SurfaceCapabilitiesKHR capabilities = device.getPhysicalDevice().getSurfaceCapabilitiesKHR(surface);
-		std::vector<vk::SurfaceFormatKHR> formats = device.getPhysicalDevice().getSurfaceFormatsKHR(surface);
-		std::vector<vk::PresentModeKHR> presentModes = device.getPhysicalDevice().getSurfacePresentModesKHR(surface);
+	void SwapChain::createSwapChain() {
+		vk::SurfaceCapabilitiesKHR capabilities = context.getPhysicalDevice().getSurfaceCapabilitiesKHR(context.getSurface());
+		std::vector<vk::SurfaceFormatKHR> formats = context.getPhysicalDevice().getSurfaceFormatsKHR(context.getSurface());
+		std::vector<vk::PresentModeKHR> presentModes = context.getPhysicalDevice().getSurfacePresentModesKHR(context.getSurface());
 
 		vk::SurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(formats);
 		vk::PresentModeKHR presentMode = chooseSwapPresentMode(presentModes);
@@ -68,7 +65,7 @@ namespace ktw {
 		}
 
 		auto createInfo = vk::SwapchainCreateInfoKHR()
-			.setSurface(surface)
+			.setSurface(context.getSurface())
 			.setMinImageCount(imageCount)
 			.setImageFormat(surfaceFormat.format)
 			.setImageColorSpace(surfaceFormat.colorSpace)
@@ -76,9 +73,9 @@ namespace ktw {
 			.setImageArrayLayers(1)
 			.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
 
-		uint32_t queueFamilyIndices[] = {device.getGraphicsQueueIndex(), device.getPresentQueueIndex()};
+		uint32_t queueFamilyIndices[] = {context.getGraphicsQueueIndex(), context.getPresentQueueIndex()};
 
-		if (device.getGraphicsQueueIndex() != device.getPresentQueueIndex()) {
+		if (context.getGraphicsQueueIndex() != context.getPresentQueueIndex()) {
 			createInfo
 				.setImageSharingMode(vk::SharingMode::eConcurrent)
 				.setQueueFamilyIndexCount(2)
@@ -95,14 +92,14 @@ namespace ktw {
 			.setPresentMode(presentMode)
 			.setClipped(VK_TRUE);
 
-		swapChain = device.getDevice().createSwapchainKHRUnique(createInfo);
-		swapChainImages = device.getDevice().getSwapchainImagesKHR(*swapChain);
+		swapChain = context.getDevice().createSwapchainKHRUnique(createInfo);
+		swapChainImages = context.getDevice().getSwapchainImagesKHR(*swapChain);
 		swapChainImageFormat = surfaceFormat.format;
 		swapChainExtent = extent;
 		LOG_TRACE("SwapChain Created");
 	}
 
-	void SwapChain::createImageViews(ktw::Device& device) {
+	void SwapChain::createImageViews() {
 		swapChainImageViews.resize(swapChainImages.size());
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
@@ -120,12 +117,12 @@ namespace ktw {
 					.setAspectMask(vk::ImageAspectFlagBits::eColor)
 					.setLevelCount(1)
 					.setLayerCount(1));
-			swapChainImageViews[i] = device.getDevice().createImageViewUnique(createInfo);
+			swapChainImageViews[i] = context.getDevice().createImageViewUnique(createInfo);
 		}
 		LOG_TRACE("Image Views ({}) Created", swapChainImageViews.size());
 	}
 
-	void SwapChain::createRenderPass(ktw::Device& device) {
+	void SwapChain::createRenderPass() {
 		auto colorAttachment = vk::AttachmentDescription()
 			.setFormat(swapChainImageFormat)
 			.setSamples(vk::SampleCountFlagBits::e1)
@@ -151,25 +148,25 @@ namespace ktw {
 			.setSubpassCount(1)
 			.setPSubpasses(&subpass);
 
-		renderPass = device.getDevice().createRenderPassUnique(renderPassInfo);
+		renderPass = context.getDevice().createRenderPassUnique(renderPassInfo);
 		LOG_TRACE("RenderPass Created");
 	}
 
-	void SwapChain::createFramebuffers(ktw::Device& device) {
+	void SwapChain::createFramebuffers() {
 		swapChainFramebuffers.reserve(swapChainImageViews.size());
 
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-			swapChainFramebuffers.emplace_back(device, swapChainImageViews[i], renderPass, width, height);
+			swapChainFramebuffers.emplace_back(context, swapChainImageViews[i], renderPass);
 		}
 
 		LOG_TRACE("Framebuffers ({}) Created", swapChainFramebuffers.size());
 	}
 
-	void SwapChain::createSemaphores(ktw::Device& device) {
+	void SwapChain::createSemaphores() {
 		//auto semaphoreInfo = vk::SemaphoreCreateInfo();
 		auto fenceInfo = vk::FenceCreateInfo();
 
-		imageAvailableFence = device.getDevice().createFenceUnique(fenceInfo);
+		imageAvailableFence = context.getDevice().createFenceUnique(fenceInfo);
 		//renderFinishedSemaphore = device.getDevice().createSemaphoreUnique(semaphoreInfo);
 		LOG_TRACE("Semaphore/Fence Created");
 	}
@@ -183,8 +180,8 @@ namespace ktw {
 	}
 
 	ktw::FrameBuffer& SwapChain::nextFrameBuffer() {
-		imageIndex = (device.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, {}, *imageAvailableFence)).value;
-		device.getDevice().waitForFences(1, &(*imageAvailableFence), true, UINT64_MAX);
+		imageIndex = (context.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, {}, *imageAvailableFence)).value;
+		context.getDevice().waitForFences(1, &(*imageAvailableFence), true, UINT64_MAX);
 		return swapChainFramebuffers[imageIndex];
 	}
 
@@ -206,12 +203,12 @@ namespace ktw {
 			.setPSwapchains(swapChains)
 			.setPImageIndices(&index);
 
-		if(device.getPresentQueue().presentKHR(presentInfo) != vk::Result::eSuccess) {
+		if(context.getPresentQueue().presentKHR(presentInfo) != vk::Result::eSuccess) {
 			throw std::runtime_error("Error while presenting image to swap chain");
 		}
 		
 		// TODO: Change this
-		device.getPresentQueue().waitIdle();
+		context.getPresentQueue().waitIdle();
 	}
 
 	// std::vector<vk::Framebuffer>& SwapChain::getFrameBuffers() {

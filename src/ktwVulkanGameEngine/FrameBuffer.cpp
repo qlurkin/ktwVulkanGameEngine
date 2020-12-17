@@ -2,7 +2,7 @@
 #include "FrameBuffer.hpp"
 
 namespace ktw {
-	FrameBuffer::FrameBuffer(ktw::Device& device, vk::ImageView imageView, vk::RenderPass renderPass, uint32_t width, uint32_t height) : width(width), height(height), renderPass(renderPass) {
+	FrameBuffer::FrameBuffer(ktw::Context& context, vk::ImageView imageView, vk::RenderPass renderPass) : width(context.getWidth()), height(context.getHeight()), renderPass(renderPass) {
 		auto framebufferInfo = vk::FramebufferCreateInfo()
 			.setRenderPass(renderPass)
 			.setAttachmentCount(1)
@@ -11,7 +11,7 @@ namespace ktw {
 			.setHeight(height)
 			.setLayers(1);
 
-		frameBuffer = device.getDevice().createFramebufferUnique(framebufferInfo);
+		frameBuffer = context.getDevice().createFramebufferUnique(framebufferInfo);
 		
 		LOG_TRACE("Framebuffer Created");
 	}

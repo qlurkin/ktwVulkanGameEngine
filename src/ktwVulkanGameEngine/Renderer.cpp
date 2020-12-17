@@ -2,35 +2,18 @@
 #include "Renderer.hpp"
 
 namespace ktw {
-	Renderer::Renderer(GLFWwindow* window, uint32_t width, uint32_t height) :
-		instance(getGlfwRequiredInstanceExtensions()),
-		surface(vk::UniqueSurfaceKHR(getSurfaceFromGlfw(window, instance.getInstance()), instance.getInstance())),
-		device(instance, *surface),
-		swapChain(device, *surface, width, height),
-		commandPool(device)
+	Renderer::Renderer(ktw::Context& context) :
+		//instance(getGlfwRequiredInstanceExtensions()),
+		//surface(vk::UniqueSurfaceKHR(getSurfaceFromGlfw(window, instance.getInstance()), instance.getInstance())),
+		//device(instance, *surface),
+		//swapChain(device, *surface, width, height),
+		context(context),
+		commandPool(context)
 	{
 		auto fenceInfo = vk::FenceCreateInfo();
-		renderFinishedFence = device.getDevice().createFenceUnique(fenceInfo);
+		renderFinishedFence = context.getDevice().createFenceUnique(fenceInfo);
 
 		LOG_TRACE("Renderer Created");
-	}
-
-	std::vector<const char*> Renderer::getGlfwRequiredInstanceExtensions() {
-		uint32_t glfwExtensionCount = 0;
-		const char** glfwExtensions;
-		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-		std::vector<const char*> extensionNames(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-		return extensionNames;
-	}
-
-	vk::SurfaceKHR Renderer::getSurfaceFromGlfw(GLFWwindow* window, vk::Instance& instance) {
-		VkSurfaceKHR surface;
-		if(glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create window surface!");
-		}
-
-		return surface;
 	}
 	
 	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(uint32_t width, uint32_t height, vk::RenderPass renderPass, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
@@ -46,11 +29,11 @@ namespace ktw {
 	}
 
 	void Renderer::waitDeviceIdle() {
-		device.getDevice().waitIdle();
+		context.getDevice().waitIdle();
 	}
 
-	void Renderer::startFrame(vk::Framebuffer frameBuffer) {
-		renderingFrameBuffer = frameBuffer;
+	void Renderer::startFrame(ktw::FrameBuffer& frameBuffer) {
+		renderingFrameBuffer = frameBuffer.getFrameBuffer();
 		renderingFrame = true;
 		postedCommandBuffers.clear();
 	}
@@ -69,13 +52,13 @@ namespace ktw {
 			//.setSignalSemaphoreCount(1)
 			//.setPSignalSemaphores(signalSemaphores);
 		
-		if(device.getGraphicsQueue().submit(1, &submitInfo, *renderFinishedFence) != vk::Result::eSuccess) {
+		if(context.getGraphicsQueue().submit(1, &submitInfo, *renderFinishedFence) != vk::Result::eSuccess) {
 			throw std::runtime_error("Error while submitting command buffers");
 		}
 	}
 
 	void Renderer::waitEndOfRender() {
-		device.getDevice().waitForFences(1, &(*renderFinishedFence), true, UINT64_MAX);
+		context.getDevice().waitForFences(1, &(*renderFinishedFence), true, UINT64_MAX);
 		renderingFrame = false;
 	}
 
@@ -91,9 +74,9 @@ namespace ktw {
 		return createBuffer(sizeof(uint32_t), count, ktw::BufferUsage::eIndexBuffer, data);
 	}
 
-	ktw::UniformBuffer* Renderer::createUniformBuffer(uint32_t size) {
-		return new ktw::UniformBuffer(device, size);
-	}
+	// ktw::UniformBuffer* Renderer::createUniformBuffer(uint32_t size) {
+	// 	return new ktw::UniformBuffer(context, size);
+	// }
 
 	// void Renderer::setDescriptorPoolSize(uint32_t size) {
 	// 	swapChain.setDescriptorPoolSize(size);
@@ -108,7 +91,7 @@ namespace ktw {
 		recordingCommand = true;
 
 		vk::ClearValue clearColor(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
-		vk::Rect2D renderArea = { {0, 0}, swapChain.getExtent() };
+		vk::Rect2D renderArea = { {0, 0}, {context.getWidth(), context.getHeight()} };
 		
 		auto beginInfo = vk::CommandBufferBeginInfo()
 			.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);

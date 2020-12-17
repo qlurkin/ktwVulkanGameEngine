@@ -1,17 +1,17 @@
 #pragma once
 
-#include "Device.hpp"
+#include "Context.hpp"
 
 namespace ktw
 {
 	class CommandPool {
 	public:
-		CommandPool(ktw::Device& device);
+		CommandPool(ktw::Context& context);
 		vk::CommandBuffer getCommandBuffer();
 		void freeCommandBuffer(vk::CommandBuffer& buffer);
 
 	private:
-		ktw::Device& device;
+		ktw::Context& context;
 		vk::UniqueCommandPool commandPool;
 		std::set<vk::CommandBuffer> allocatedCommandBuffer;
 		std::set<vk::CommandBuffer> lockedCommandBuffer;

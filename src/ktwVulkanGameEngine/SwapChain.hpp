@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Device.hpp"
+#include "Context.hpp"
 #include "CommandBuffer.hpp"
 #include "FrameBuffer.hpp"
 
@@ -9,7 +9,7 @@
 namespace ktw {
 	class SwapChain {
 	public:
-		SwapChain(ktw::Device& device, vk::SurfaceKHR& surface, uint32_t width, uint32_t height);
+		SwapChain(ktw::Context& context);
 		vk::Extent2D& getExtent();
 		vk::RenderPass& getRenderPass();
 		//void submit(std::vector<ktw::CommandBuffer>& commandBuffers) override;
@@ -22,8 +22,7 @@ namespace ktw {
 		void present(ktw::FrameBuffer& frameBuffer);
 
 	private:
-		uint32_t width, height;
-		ktw::Device& device;
+		ktw::Context& context;
 		vk::UniqueSwapchainKHR swapChain;
 		std::vector<vk::Image> swapChainImages;
 		vk::Format swapChainImageFormat;
@@ -43,11 +42,11 @@ namespace ktw {
 		vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
 		vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
 		vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
-		void createSwapChain(ktw::Device& device, vk::SurfaceKHR& surface);
-		void createImageViews(ktw::Device& device);
-		void createRenderPass(ktw::Device& device);
-		void createFramebuffers(ktw::Device& device);
-		void createSemaphores(ktw::Device& device);
+		void createSwapChain();
+		void createImageViews();
+		void createRenderPass();
+		void createFramebuffers();
+		void createSemaphores();
 		//void createDescriptorPool(ktw::Device& device, uint32_t size);
 	};
 }

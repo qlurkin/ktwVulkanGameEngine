@@ -3,11 +3,11 @@
 
 namespace ktw
 {
-	CommandPool::CommandPool(ktw::Device& device) : device(device) {
+	CommandPool::CommandPool(ktw::Context& context) : context(context) {
 		auto poolInfo = vk::CommandPoolCreateInfo()
-			.setQueueFamilyIndex(device.getGraphicsQueueIndex());
+			.setQueueFamilyIndex(context.getGraphicsQueueIndex());
 
-		commandPool = device.getDevice().createCommandPoolUnique(poolInfo);
+		commandPool = context.getDevice().createCommandPoolUnique(poolInfo);
 		LOG_TRACE("Command Pool Created");
 	}
 
@@ -33,7 +33,7 @@ namespace ktw
 			.setLevel(vk::CommandBufferLevel::ePrimary)
 			.setCommandBufferCount(1);
 		
-		vk::CommandBuffer buffer = device.getDevice().allocateCommandBuffers(allocInfo)[0];
+		vk::CommandBuffer buffer = context.getDevice().allocateCommandBuffers(allocInfo)[0];
 		lockedCommandBuffer.insert(buffer);
 
 		LOG_TRACE("Total Command Buffer Allocated: {}", lockedCommandBuffer.size()+allocatedCommandBuffer.size());

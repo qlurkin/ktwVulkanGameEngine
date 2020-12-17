@@ -8,6 +8,9 @@
 #include <optional>
 
 #include "Renderer.hpp"
+#include "Instance.hpp"
+#include "Context.hpp"
+#include "SwapChain.hpp"
 
 namespace ktw {
 	class Application {
@@ -29,6 +32,9 @@ namespace ktw {
 		uint32_t width;
 		uint32_t height;
 		GLFWwindow* window;
-		std::unique_ptr<Renderer> renderer;
+		std::unique_ptr<ktw::Renderer> renderer;
+		std::unique_ptr<ktw::Instance> instance;
+		std::unique_ptr<ktw::Context> context;
+		std::unique_ptr<ktw::SwapChain> swapChain;
 	};
 } // namespace ktw
