@@ -33,8 +33,7 @@ namespace ktw {
 	}
 
 	void Renderer::startFrame(ktw::FrameBuffer& frameBuffer) {
-		renderingFrameBuffer = frameBuffer.getFrameBuffer();
-		renderingFrame = true;
+		renderingFrameBuffer = &frameBuffer;
 		postedCommandBuffers.clear();
 	}
 
@@ -59,7 +58,7 @@ namespace ktw {
 
 	void Renderer::waitEndOfRender() {
 		context.getDevice().waitForFences(1, &(*renderFinishedFence), true, UINT64_MAX);
-		renderingFrame = false;
+		renderingFrameBuffer = nullptr;
 	}
 
 	// void Renderer::post(ktw::CommandBuffer* commandBuffer) {
@@ -99,8 +98,8 @@ namespace ktw {
 		recordingCommandBuffer.begin(beginInfo);
 
 		auto renderPassInfo = vk::RenderPassBeginInfo()
-				.setRenderPass(swapChain.getRenderPass())
-				.setFramebuffer(renderingFrameBuffer)
+				.setRenderPass(renderingFrameBuffer->getRenderPass())
+				.setFramebuffer(renderingFrameBuffer->getFrameBuffer())
 				.setRenderArea(renderArea)
 				.setClearValueCount(1)
 				.setPClearValues(&clearColor);

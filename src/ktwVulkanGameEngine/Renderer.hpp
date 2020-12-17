@@ -36,8 +36,8 @@ namespace ktw {
 		ktw::Context& context;
 		std::vector<vk::CommandBuffer> postedCommandBuffers;
 		vk::CommandBuffer recordingCommandBuffer;
-		vk::Framebuffer renderingFrameBuffer;
-		bool renderingFrame = false;
+		ktw::FrameBuffer* renderingFrameBuffer = nullptr;
+		//bool renderingFrame = false;
 		bool recordingCommand = false;
 		ktw::CommandPool commandPool;
 		vk::UniqueFence renderFinishedFence;
