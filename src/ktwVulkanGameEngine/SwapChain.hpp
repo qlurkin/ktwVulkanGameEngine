@@ -10,6 +10,8 @@ namespace ktw {
 	class SwapChain {
 	public:
 		SwapChain(ktw::Context& context);
+		uint32_t getWidth();
+		uint32_t getHeight();
 		vk::Extent2D& getExtent();
 		vk::RenderPass& getRenderPass();
 		//void submit(std::vector<ktw::CommandBuffer>& commandBuffers) override;

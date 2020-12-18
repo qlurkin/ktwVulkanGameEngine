@@ -31,6 +31,10 @@ namespace ktw {
 		void setDescriptorPoolSize(uint32_t size);
 		void startCommandBuffer();
 		void endCommandBuffer();
+		void bindPipeline(ktw::GraphicsPipeline* pipeline);
+		void bindVertexBuffer(ktw::Buffer* buffer);
+		void bindIndexBuffer(ktw::Buffer* buffer);
+		void drawIndexed(uint32_t count);
 
 	private:
 		ktw::Context& context;

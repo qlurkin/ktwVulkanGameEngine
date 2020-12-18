@@ -5,10 +5,17 @@ namespace ktw
 {
 	CommandPool::CommandPool(ktw::Context& context) : context(context) {
 		auto poolInfo = vk::CommandPoolCreateInfo()
-			.setQueueFamilyIndex(context.getGraphicsQueueIndex());
+			.setQueueFamilyIndex(context.getGraphicsQueueIndex())
+			.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
 		commandPool = context.getDevice().createCommandPoolUnique(poolInfo);
 		LOG_TRACE("Command Pool Created");
+	}
+
+	CommandPool::~CommandPool() {
+		for(auto buffer: allocatedCommandBuffer) {
+			//context.getDevice().destroyCo
+		}
 	}
 
 	vk::CommandBuffer CommandPool::getCommandBuffer() {
@@ -22,7 +29,7 @@ namespace ktw
 		return createCommandBuffer();
 	}
 
-	void CommandPool::freeCommandBuffer(vk::CommandBuffer& buffer) {
+	void CommandPool::freeCommandBuffer(vk::CommandBuffer buffer) {
 		lockedCommandBuffer.erase(buffer);
 		allocatedCommandBuffer.insert(buffer);
 	}

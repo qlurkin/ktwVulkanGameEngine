@@ -59,12 +59,19 @@ namespace ktw {
 				ss << "ktwVulkanGameEngine" << " [" << 1000.0/frameTime.count() << " FPS]";
 				glfwSetWindowTitle(window, ss.str().c_str());
 				start = end;
+				
 				ktw::FrameBuffer& frame = swapChain->nextFrameBuffer();
+				
 				renderer->startFrame(frame);
+				
 				userUpdate(*renderer);
+				
 				renderer->endFrame();
+				
 				renderer->waitEndOfRender();
+				
 				swapChain->present(frame);
+				
 			}
 			
 		}
@@ -75,5 +82,9 @@ namespace ktw {
 	void Application::cleanup() {
 		glfwDestroyWindow(window);
 		glfwTerminate();
+	}
+
+	ktw::SwapChain& Application::getSwapchain() {
+		return *swapChain;
 	}
 }

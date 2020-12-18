@@ -18,6 +18,7 @@ namespace ktw {
 		Application(uint32_t width, uint32_t height);
 		~Application();
 		void run();
+		ktw::SwapChain& getSwapchain();
 
 	private:
 		virtual void userSetup(ktw::Renderer& renderer) = 0;
@@ -32,9 +33,9 @@ namespace ktw {
 		uint32_t width;
 		uint32_t height;
 		GLFWwindow* window;
-		std::unique_ptr<ktw::Renderer> renderer;
 		std::unique_ptr<ktw::Instance> instance;
 		std::unique_ptr<ktw::Context> context;
 		std::unique_ptr<ktw::SwapChain> swapChain;
+		std::unique_ptr<ktw::Renderer> renderer;
 	};
 } // namespace ktw

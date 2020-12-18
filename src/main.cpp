@@ -19,7 +19,7 @@ public:
 
 private:
 	ktw::GraphicsPipeline* graphicsPipeline;
-	ktw::CommandBuffer* commandBuffer;
+	//ktw::CommandBuffer* commandBuffer;
 	ktw::Buffer* vertexBuffer;
 	ktw::Buffer* indexBuffer;
 
@@ -33,6 +33,9 @@ private:
 
 	void userSetup(ktw::Renderer& renderer) override {
 		graphicsPipeline = renderer.createGraphicsPipeline(
+			getSwapchain().getWidth(),
+			getSwapchain().getHeight(),
+			getSwapchain().getRenderPass(),
 			"shaders\\shader.vert",
 			"shaders\\shader.frag",
 			{{
@@ -52,15 +55,26 @@ private:
 		);
 		vertexBuffer = renderer.createVertexBuffer(sizeof(Vertex), vertices.size(), vertices.data());
 		indexBuffer = renderer.createIndexBuffer(indices.size(), indices.data());
-		commandBuffer = renderer.createCommandBuffer(graphicsPipeline, vertexBuffer, indexBuffer);
+		//commandBuffer = renderer.createCommandBuffer(graphicsPipeline, vertexBuffer, indexBuffer);
 	}
 
 	void userUpdate(ktw::Renderer& renderer) override {
-		renderer.post(commandBuffer);
+		//renderer.post(commandBuffer);
+		renderer.startCommandBuffer();
+		//LOG_WARN("Hello1");
+		renderer.bindPipeline(graphicsPipeline);
+		//LOG_WARN("Hello2");
+		renderer.bindVertexBuffer(vertexBuffer);
+		//LOG_WARN("Hello3");
+		renderer.bindIndexBuffer(indexBuffer);
+		//LOG_WARN("Hello4");
+		renderer.drawIndexed(indexBuffer->getCount());
+		//LOG_WARN("Hello5");
+		renderer.endCommandBuffer();
 	}
 
 	void userCleanup(ktw::Renderer& renderer) override {
-		delete commandBuffer;
+		//delete commandBuffer;
 		delete vertexBuffer;
 		delete indexBuffer;
 		delete graphicsPipeline;

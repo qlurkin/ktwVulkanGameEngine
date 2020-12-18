@@ -180,6 +180,7 @@ namespace ktw {
 	}
 
 	ktw::FrameBuffer& SwapChain::nextFrameBuffer() {
+		context.getDevice().resetFences(*imageAvailableFence);
 		imageIndex = (context.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, {}, *imageAvailableFence)).value;
 		auto result = context.getDevice().waitForFences(1, &(*imageAvailableFence), true, UINT64_MAX);
 		return swapChainFramebuffers[imageIndex];
@@ -209,6 +210,14 @@ namespace ktw {
 		
 		// TODO: Change this
 		context.getPresentQueue().waitIdle();
+	}
+
+	uint32_t SwapChain::getWidth() {
+		return context.getWidth();
+	}
+	
+	uint32_t SwapChain::getHeight() {
+		return context.getHeight();
 	}
 
 	// std::vector<vk::Framebuffer>& SwapChain::getFrameBuffers() {
