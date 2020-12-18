@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "IRenderTarget.hpp"
+#include "RenderTarget.hpp"
 #include "Shader.hpp"
 #include "UniformBuffer.hpp"
 #include "Context.hpp"
@@ -42,7 +42,7 @@ namespace ktw {
 
 	class GraphicsPipeline {
 	public:
-		GraphicsPipeline(ktw::Context& context, vk::RenderPass renderPass, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
+		GraphicsPipeline(ktw::Context& context, ktw::RenderTarget& renderTarget, const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
 		vk::Pipeline& getPipeline();
 
 	private:

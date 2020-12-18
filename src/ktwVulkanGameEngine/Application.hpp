@@ -18,7 +18,7 @@ namespace ktw {
 		Application(uint32_t width, uint32_t height);
 		~Application();
 		void run();
-		ktw::SwapChain& getSwapchain();
+		ktw::SwapChain* getSwapchain();
 
 	private:
 		virtual void userSetup(ktw::Renderer& renderer) = 0;
@@ -39,3 +39,5 @@ namespace ktw {
 		std::unique_ptr<ktw::Renderer> renderer;
 	};
 } // namespace ktw
+
+//TODO: Check if recording commandbuffer/rendering Frame, Timing, Window(RenderTarget, SwapChain), Interfaces from Vulkan and from GLFW

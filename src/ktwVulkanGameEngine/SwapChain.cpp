@@ -175,11 +175,11 @@ namespace ktw {
 		return swapChainExtent;
 	}
 
-	vk::RenderPass& SwapChain::getRenderPass() {
+	vk::RenderPass SwapChain::getRenderPass() {
 		return *renderPass;
 	}
 
-	ktw::FrameBuffer& SwapChain::nextFrameBuffer() {
+	ktw::FrameBuffer& SwapChain::getFrameBuffer() {
 		context.getDevice().resetFences(*imageAvailableFence);
 		imageIndex = (context.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, {}, *imageAvailableFence)).value;
 		auto result = context.getDevice().waitForFences(1, &(*imageAvailableFence), true, UINT64_MAX);
@@ -191,7 +191,7 @@ namespace ktw {
 
 		uint32_t index = 0;
 		for(; index < swapChainFramebuffers.size(); index++) {
-			if(swapChainFramebuffers[index].getFrameBuffer() == frameBuffer.getFrameBuffer()) {
+			if(swapChainFramebuffers[index].getHandle() == frameBuffer.getHandle()) {
 				break;
 			}
 		}

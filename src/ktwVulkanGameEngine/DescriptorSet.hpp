@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Device.hpp"
+#include "Context.hpp"
 
 namespace ktw {
 	class DescriptorSet {
 	public:
-		DescriptorSet(ktw::Device& device);
+		DescriptorSet(ktw::Context& context);
 
 	private:
 		vk::UniqueDescriptorSet descriptorSet;

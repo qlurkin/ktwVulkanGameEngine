@@ -60,7 +60,7 @@ namespace ktw {
 				glfwSetWindowTitle(window, ss.str().c_str());
 				start = end;
 				
-				ktw::FrameBuffer& frame = swapChain->nextFrameBuffer();
+				ktw::FrameBuffer& frame = swapChain->getFrameBuffer();
 				
 				renderer->startFrame(frame);
 				
@@ -84,7 +84,7 @@ namespace ktw {
 		glfwTerminate();
 	}
 
-	ktw::SwapChain& Application::getSwapchain() {
-		return *swapChain;
+	ktw::SwapChain* Application::getSwapchain() {
+		return &(*swapChain);
 	}
 }

@@ -16,8 +16,8 @@ namespace ktw {
 		LOG_TRACE("Renderer Created");
 	}
 	
-	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(uint32_t width, uint32_t height, vk::RenderPass renderPass, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
-		return new ktw::GraphicsPipeline(context, renderPass, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
+	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(ktw::RenderTarget* renderTarget, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
+		return new ktw::GraphicsPipeline(context, *renderTarget, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
 	}
 
 	/*ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
@@ -103,7 +103,7 @@ namespace ktw {
 
 		auto renderPassInfo = vk::RenderPassBeginInfo()
 				.setRenderPass(renderingFrameBuffer->getRenderPass())
-				.setFramebuffer(renderingFrameBuffer->getFrameBuffer())
+				.setFramebuffer(renderingFrameBuffer->getHandle())
 				.setRenderArea(renderArea)
 				.setClearValueCount(1)
 				.setPClearValues(&clearColor);

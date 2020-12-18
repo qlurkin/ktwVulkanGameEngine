@@ -2,6 +2,8 @@
 
 #include "Context.hpp"
 
+#include <set>
+
 namespace ktw
 {
 	class CommandPool {
@@ -19,4 +21,4 @@ namespace ktw
 
 		vk::CommandBuffer createCommandBuffer();
 	};
-} // namespace ktw
+}

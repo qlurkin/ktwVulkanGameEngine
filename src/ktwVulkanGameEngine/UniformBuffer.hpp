@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Context.hpp"
-#include "IRenderTarget.hpp"
 #include "Buffer.hpp"
 
 namespace ktw {

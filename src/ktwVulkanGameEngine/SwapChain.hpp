@@ -1,26 +1,26 @@
 #pragma once
 
 #include "Context.hpp"
-#include "CommandBuffer.hpp"
 #include "FrameBuffer.hpp"
+#include "RenderTarget.hpp"
 
 #include <optional>
 
 namespace ktw {
-	class SwapChain {
+	class SwapChain : public RenderTarget {
 	public:
 		SwapChain(ktw::Context& context);
-		uint32_t getWidth();
-		uint32_t getHeight();
+		uint32_t getWidth() override;
+		uint32_t getHeight() override;
 		vk::Extent2D& getExtent();
-		vk::RenderPass& getRenderPass();
+		vk::RenderPass getRenderPass() override;
 		//void submit(std::vector<ktw::CommandBuffer>& commandBuffers) override;
 		//std::vector<vk::Framebuffer>& getFrameBuffers();
 		//void acquireImage();
 		//uint32_t acquiredImageIndex();
 		//void setDescriptorPoolSize(uint32_t size);
 		//vk::DescriptorPool& getDescriptorPool();
-		ktw::FrameBuffer& nextFrameBuffer();
+		ktw::FrameBuffer& getFrameBuffer() override;
 		void present(ktw::FrameBuffer& frameBuffer);
 
 	private:

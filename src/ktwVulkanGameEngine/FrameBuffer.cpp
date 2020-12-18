@@ -24,8 +24,12 @@ namespace ktw {
 		return height;
 	}
 
-	vk::Framebuffer FrameBuffer::getFrameBuffer() {
+	vk::Framebuffer FrameBuffer::getHandle() {
 		return *frameBuffer;
+	}
+
+	ktw::FrameBuffer& FrameBuffer::getFrameBuffer() {
+		return *this;
 	}
 
 	vk::RenderPass FrameBuffer::getRenderPass() {
