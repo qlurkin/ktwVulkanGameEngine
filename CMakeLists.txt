@@ -60,5 +60,6 @@ target_sources(${PROJECT_NAME} PUBLIC
 	src/ktwVulkanGameEngine/CommandPool.cpp
 	src/ktwVulkanGameEngine/FrameBuffer.cpp
 	src/ktwVulkanGameEngine/Context.cpp
+	src/ktwVulkanGameEngine/DescriptorPool.cpp
 	src/main.cpp
 )

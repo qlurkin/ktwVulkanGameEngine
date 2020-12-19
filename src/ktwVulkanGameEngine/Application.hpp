@@ -40,4 +40,4 @@ namespace ktw {
 	};
 }
 
-//TODO: Check if recording commandbuffer/rendering Frame, Timing, Window(RenderTarget, SwapChain), Interfaces from Vulkan and from GLFW
+//TODO: Timing, Window(RenderTarget, SwapChain), Interfaces from Vulkan and from GLFW

@@ -22,15 +22,36 @@ private:
 	ktw::Buffer* vertexBuffer;
 	ktw::Buffer* indexBuffer;
 
-	std::vector<Vertex> vertices = {
-		{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-	};
+	// std::vector<Vertex> vertices = {
+	// 	{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+	// 	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	// 	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	// };
 
-	std::vector<uint32_t> indices = {0, 1, 2};
+	// std::vector<Vertex> vertices = {
+	// 	{{0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}},
+	// 	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+	// 	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+	// 	{{-0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}}
+	// };
+
+	//std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
+
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
 
 	void userSetup(ktw::Renderer& renderer) override {
+
+		vertices.push_back({{0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}});
+		vertices.push_back({{0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}});
+		for(int i=0; i<=360; i++) {
+			float angle = i*3.141593f/180;
+			vertices.push_back({{0.5f*glm::cos(angle), 0.5f*glm::sin(angle)}, {1.0f, 0.0f, 0.0f}});
+			indices.push_back(0);
+			indices.push_back(i+1);
+			indices.push_back(i+2);
+		}
+
 		graphicsPipeline = renderer.createGraphicsPipeline(
 			getSwapchain(),
 			"shaders\\shader.vert",
