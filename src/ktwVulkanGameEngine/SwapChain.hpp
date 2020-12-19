@@ -14,10 +14,6 @@ namespace ktw {
 		uint32_t getHeight() override;
 		vk::Extent2D& getExtent();
 		vk::RenderPass getRenderPass() override;
-		//void submit(std::vector<ktw::CommandBuffer>& commandBuffers) override;
-		//std::vector<vk::Framebuffer>& getFrameBuffers();
-		//void acquireImage();
-		//uint32_t acquiredImageIndex();
 		//void setDescriptorPoolSize(uint32_t size);
 		//vk::DescriptorPool& getDescriptorPool();
 		ktw::FrameBuffer& getFrameBuffer() override;
@@ -32,7 +28,6 @@ namespace ktw {
 		std::vector<vk::UniqueImageView> swapChainImageViews;
 		vk::UniqueRenderPass renderPass;
 		std::vector<ktw::FrameBuffer> swapChainFramebuffers;
-		//std::vector<vk::Framebuffer> framebuffers; // Must be a better way
 		uint32_t imageIndex;
 		bool imageAcquired;
 		vk::UniqueFence imageAvailableFence;

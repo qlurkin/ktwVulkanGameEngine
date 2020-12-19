@@ -17,7 +17,6 @@ namespace ktw {
 		Renderer(ktw::Context& context);
 
 		ktw::GraphicsPipeline* createGraphicsPipeline(ktw::RenderTarget* renderTarget, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors);
-		//ktw::CommandBuffer* createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer);
 		ktw::Buffer* createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data);
 		ktw::Buffer* createVertexBuffer(uint32_t itemSize, size_t count, void* data);
 		ktw::Buffer* createIndexBuffer(size_t count, void* data);
@@ -26,7 +25,6 @@ namespace ktw {
 		void startFrame(ktw::FrameBuffer& frameBuffer);
 		void endFrame();
 		void waitEndOfRender();
-		//void post(ktw::CommandBuffer* commandBuffer);
 		void setDescriptorPoolSize(uint32_t size);
 		void startCommandBuffer();
 		void endCommandBuffer();

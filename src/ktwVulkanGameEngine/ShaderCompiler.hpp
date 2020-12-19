@@ -6,14 +6,12 @@
 #include <SPIRV/GlslangToSpv.h>
 #include <StandAlone/DirStackFileIncluder.h>
 
-//#include <iostream>
 #include "pch.hpp"
 
 std::string GetFilePath(const std::string& str)
 {
 	size_t found = str.find_last_of("/\\");
 	return str.substr(0,found);
-	//size_t FileName = str.substr(found+1);
 }
 
 std::string GetSuffix(const std::string& name)
@@ -235,13 +233,6 @@ const std::vector<uint32_t> CompileGLSL(const std::string& filename)
 	{
 		LOG_ERROR("GLSL Linking Failed for: {}\n{}\n{}", filename, Shader.getInfoLog(), Shader.getInfoDebugLog());
 	}
-
-	// if (!Program.mapIO())
-	// {
-	// 	std::cout << "GLSL Linking (Mapping IO) Failed for: " << filename << std::endl;
-	// 	std::cout << Shader.getInfoLog() << std::endl;
-	// 	std::cout << Shader.getInfoDebugLog() << std::endl;
-	// }
 
 	std::vector<uint32_t> SpirV;
 	spv::SpvBuildLogger logger;

@@ -12,12 +12,6 @@ namespace ktw
 		LOG_TRACE("Command Pool Created");
 	}
 
-	CommandPool::~CommandPool() {
-		for(auto buffer: allocatedCommandBuffer) {
-			//context.getDevice().destroyCo
-		}
-	}
-
 	vk::CommandBuffer CommandPool::getCommandBuffer() {
 		if(!allocatedCommandBuffer.empty()) {
 			vk::CommandBuffer buffer = *allocatedCommandBuffer.begin();
@@ -47,4 +41,4 @@ namespace ktw
 
 		return buffer;
 	}
-} // namespace ktw
+}

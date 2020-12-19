@@ -3,10 +3,6 @@
 
 namespace ktw {
 	Renderer::Renderer(ktw::Context& context) :
-		//instance(getGlfwRequiredInstanceExtensions()),
-		//surface(vk::UniqueSurfaceKHR(getSurfaceFromGlfw(window, instance.getInstance()), instance.getInstance())),
-		//device(instance, *surface),
-		//swapChain(device, *surface, width, height),
 		context(context),
 		commandPool(context)
 	{
@@ -19,10 +15,6 @@ namespace ktw {
 	ktw::GraphicsPipeline* Renderer::createGraphicsPipeline(ktw::RenderTarget* renderTarget, std::string vertexShader, std::string fragmentShader, const std::vector<ktw::VertexBufferBinding>& vertexBufferBindings, const std::vector<ktw::UniformDescriptor>& uniformDescriptors) {
 		return new ktw::GraphicsPipeline(context, *renderTarget, vertexShader, fragmentShader, vertexBufferBindings, uniformDescriptors);
 	}
-
-	/*ktw::CommandBuffer* Renderer::createCommandBuffer(ktw::GraphicsPipeline* pipeline, ktw::Buffer* vertexBuffer, ktw::Buffer* indexBuffer) {
-		return new ktw::CommandBuffer(device, swapChain, *pipeline, *vertexBuffer, *indexBuffer);
-	}*/
 
 	ktw::Buffer* Renderer::createBuffer(uint32_t itemSize, size_t count, ktw::BufferUsage usage, void* data) {
 		return new ktw::Buffer(context, itemSize, static_cast<uint32_t>(count), usage, data);
@@ -37,18 +29,11 @@ namespace ktw {
 	}
 
 	void Renderer::endFrame() {
-		//swapChain.submit(postedCommandBuffers);
-
-		//vk::Semaphore signalSemaphores[] = {*renderFinishedSemaphore};
 		vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eTopOfPipe};
 		auto submitInfo = vk::SubmitInfo()
-			//.setWaitSemaphoreCount(1)
-			//.setPWaitSemaphores(waitSemaphores)
 			.setPWaitDstStageMask(waitStages)
 			.setCommandBufferCount(static_cast<uint32_t>(postedCommandBuffers.size()))
 			.setPCommandBuffers(postedCommandBuffers.data());
-			//.setSignalSemaphoreCount(1)
-			//.setPSignalSemaphores(signalSemaphores);
 		
 		context.getDevice().resetFences(*renderFinishedFence);
 		if(context.getGraphicsQueue().submit(1, &submitInfo, *renderFinishedFence) != vk::Result::eSuccess) {
@@ -64,10 +49,6 @@ namespace ktw {
 		}
 		postedCommandBuffers.clear();
 	}
-
-	// void Renderer::post(ktw::CommandBuffer* commandBuffer) {
-	// 	postedCommandBuffers.push_back(commandBuffer);
-	// }
 
 	ktw::Buffer* Renderer::createVertexBuffer(uint32_t itemSize, size_t count, void* data) {
 		return createBuffer(itemSize, count, ktw::BufferUsage::eVertexBuffer, data);
@@ -86,6 +67,10 @@ namespace ktw {
 	// }
 
 	void Renderer::startCommandBuffer() {
+		if(!renderingFrameBuffer) {
+			throw std::runtime_error("Frame not started");
+		}
+
 		if(recordingCommand) {
 			throw std::runtime_error("Already recording a command buffer");
 		}
@@ -122,10 +107,16 @@ namespace ktw {
 	}
 
 	void Renderer::bindPipeline(ktw::GraphicsPipeline* pipeline) {
+		if(!recordingCommand) {
+			throw std::runtime_error("No command buffer started");
+		}
 		recordingCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->getPipeline());
 	}
 
 	void Renderer::bindVertexBuffer(ktw::Buffer* buffer) {
+		if(!recordingCommand) {
+			throw std::runtime_error("No command buffer started");
+		}
 		vk::Buffer vertexBuffers[] = {buffer->getBuffer()};
 		vk::DeviceSize offsets[] = {0};
 
@@ -133,10 +124,16 @@ namespace ktw {
 	}
 
 	void Renderer::bindIndexBuffer(ktw::Buffer* buffer) {
+		if(!recordingCommand) {
+			throw std::runtime_error("No command buffer started");
+		}
 		recordingCommandBuffer.bindIndexBuffer(buffer->getBuffer(), 0, vk::IndexType::eUint32);
 	}
 
 	void Renderer::drawIndexed(uint32_t count) {
+		if(!recordingCommand) {
+			throw std::runtime_error("No command buffer started");
+		}
 		recordingCommandBuffer.drawIndexed(count, 1, 0, 0, 0);
 	}
 

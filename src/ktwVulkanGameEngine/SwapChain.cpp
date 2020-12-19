@@ -163,11 +163,9 @@ namespace ktw {
 	}
 
 	void SwapChain::createSemaphores() {
-		//auto semaphoreInfo = vk::SemaphoreCreateInfo();
 		auto fenceInfo = vk::FenceCreateInfo();
 
 		imageAvailableFence = context.getDevice().createFenceUnique(fenceInfo);
-		//renderFinishedSemaphore = device.getDevice().createSemaphoreUnique(semaphoreInfo);
 		LOG_TRACE("Semaphore/Fence Created");
 	}
 
@@ -219,72 +217,6 @@ namespace ktw {
 	uint32_t SwapChain::getHeight() {
 		return context.getHeight();
 	}
-
-	// std::vector<vk::Framebuffer>& SwapChain::getFrameBuffers() {
-	// 	// std::vector<vk::Framebuffer> framebuffers(swapChainFramebuffers.size());
-	// 	// for(size_t i = 0; i < swapChainFramebuffers.size(); i++) {
-	// 	// 	framebuffers[i] = *(swapChainFramebuffers[i]);
-	// 	// }
-	// 	return framebuffers;
-	// }
-
-	// void SwapChain::acquireImage() {
-	// 	if(imageAcquired) {
-	// 		throw std::runtime_error("Image already acquired");
-	// 	}
-	// 	imageIndex = (device.getDevice().acquireNextImageKHR(*swapChain, UINT64_MAX, *imageAvailableSemaphore, {})).value;
-	// 	imageAcquired = true;
-	// }
-
-	// void SwapChain::submit(std::vector<ktw::CommandBuffer>& commandBuffers) {
-	// 	if(!imageAcquired) {
-	// 		throw std::runtime_error("No image acquired");
-	// 	}
-	// 	std::vector<vk::CommandBuffer> vulkanCommandBuffers(commandBuffers.size());
-	// 	for(size_t i = 0; i < commandBuffers.size(); i++) {
-	// 		vulkanCommandBuffers[i] = commandBuffers[i]->getCommandBuffer(imageIndex);
-	// 	}
-
-	// 	vk::Semaphore waitSemaphores[] = {*imageAvailableSemaphore};
-	// 	vk::Semaphore signalSemaphores[] = {*renderFinishedSemaphore};
-	// 	vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eTopOfPipe};
-	// 	auto submitInfo = vk::SubmitInfo()
-	// 		.setWaitSemaphoreCount(1)
-	// 		.setPWaitSemaphores(waitSemaphores)
-	// 		.setPWaitDstStageMask(waitStages)
-	// 		.setCommandBufferCount(static_cast<uint32_t>(vulkanCommandBuffers.size()))
-	// 		.setPCommandBuffers(vulkanCommandBuffers.data())
-	// 		.setSignalSemaphoreCount(1)
-	// 		.setPSignalSemaphores(signalSemaphores);
-		
-	// 	if(device.getGraphicsQueue().submit(1, &submitInfo, {}) != vk::Result::eSuccess) {
-	// 		throw std::runtime_error("Error while submitting command buffers");
-	// 	}
-
-	// 	vk::SwapchainKHR swapChains[] = {*swapChain};
-
-	// 	auto presentInfo = vk::PresentInfoKHR()
-	// 		.setWaitSemaphoreCount(1)
-	// 		.setPWaitSemaphores(signalSemaphores)
-	// 		.setSwapchainCount(1)
-	// 		.setPSwapchains(swapChains)
-	// 		.setPImageIndices(&imageIndex)
-	// 		.setPResults({}); // Optional
-
-	// 	if(device.getPresentQueue().presentKHR(presentInfo) != vk::Result::eSuccess) {
-	// 		throw std::runtime_error("Error while presenting image to swap chain");
-	// 	}
-		
-	// 	// TODO: Change this
-	// 	device.getPresentQueue().waitIdle();
-	// 	imageAcquired = false;
-	// }
-
-	// uint32_t SwapChain::acquiredImageIndex() {
-	// 	if(imageAcquired)
-	// 		return imageIndex;
-	// 	throw std::runtime_error("No acquired Image");
-	// }
 
 	// void SwapChain::createDescriptorPool(ktw::Device& device, uint32_t size) {
 	// 	auto poolSize = vk::DescriptorPoolSize()

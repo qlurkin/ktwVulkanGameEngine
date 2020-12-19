@@ -51,7 +51,6 @@ namespace ktw {
 			.setPrimitiveRestartEnable(false);
 
 		std::vector<vk::DescriptorSetLayoutBinding> uboLayoutBindings(uniformDescriptors.size());
-		//uniformBuffers.resize(uniformDescriptors.size());
 		for(size_t i = 0; i < uniformDescriptors.size(); i++) {
 			uboLayoutBindings[i]
 				.setBinding(uniformDescriptors[i].binding)
@@ -59,7 +58,6 @@ namespace ktw {
 				.setDescriptorCount(1)
 				.setStageFlags((vk::ShaderStageFlagBits) uniformDescriptors[i].stage)
 				.setPImmutableSamplers({}); // Optional
-			//uniformBuffers[i] = &uniformDescriptors[i].buffer;
 		}
 
 		auto layoutInfo = vk::DescriptorSetLayoutCreateInfo()

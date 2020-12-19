@@ -38,6 +38,6 @@ namespace ktw {
 		std::unique_ptr<ktw::SwapChain> swapChain;
 		std::unique_ptr<ktw::Renderer> renderer;
 	};
-} // namespace ktw
+}
 
 //TODO: Check if recording commandbuffer/rendering Frame, Timing, Window(RenderTarget, SwapChain), Interfaces from Vulkan and from GLFW
