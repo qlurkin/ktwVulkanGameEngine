@@ -23,7 +23,7 @@ namespace ktw {
 
 		vk::DescriptorPool descriptorPool = context.getDevice().createDescriptorPool(poolInfo);
 
-		LOG_INFO("New DescriptorPool Created");
+		LOG_INFO("New vk::DescriptorPool Created");
 		return descriptorPool;
 	}
 

@@ -21,28 +21,38 @@ namespace ktw {
 		commandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
 	}
 
-	void CommandBuffer::end() {
+	ktw::CommandBuffer& CommandBuffer::end() {
 		commandBuffer.endRenderPass();
 		commandBuffer.end();
+
+		return *this;
 	}
 
-	void CommandBuffer::bindPipeline(ktw::GraphicsPipeline* pipeline) {
+	ktw::CommandBuffer& CommandBuffer::bindPipeline(ktw::GraphicsPipeline* pipeline) {
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->getPipeline());
+
+		return *this;
 	}
 
-	void CommandBuffer::bindVertexBuffer(ktw::Buffer* buffer) {
+	ktw::CommandBuffer& CommandBuffer::bindVertexBuffer(ktw::Buffer* buffer) {
 		vk::Buffer vertexBuffers[] = {buffer->getBuffer()};
 		vk::DeviceSize offsets[] = {0};
 
 		commandBuffer.bindVertexBuffers(0, 1, vertexBuffers, offsets);
+
+		return *this;
 	}
 
-	void CommandBuffer::CommandBuffer::bindIndexBuffer(ktw::Buffer* buffer) {
+	ktw::CommandBuffer& CommandBuffer::CommandBuffer::bindIndexBuffer(ktw::Buffer* buffer) {
 		commandBuffer.bindIndexBuffer(buffer->getBuffer(), 0, vk::IndexType::eUint32);
+
+		return *this;
 	}
 
-	void CommandBuffer::drawIndexed(uint32_t count) {
+	ktw::CommandBuffer& CommandBuffer::drawIndexed(uint32_t count) {
 		commandBuffer.drawIndexed(count, 1, 0, 0, 0);
+
+		return *this;
 	}
 
 	vk::CommandBuffer CommandBuffer::getHandle() {

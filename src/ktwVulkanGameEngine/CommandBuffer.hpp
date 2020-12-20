@@ -8,11 +8,11 @@ namespace ktw {
 	class CommandBuffer {
 	public:
 		CommandBuffer(ktw::FrameBuffer& framebuffer, vk::CommandBuffer commandBuffer);
-		void end();
-		void bindPipeline(ktw::GraphicsPipeline* pipeline);
-		void bindVertexBuffer(ktw::Buffer* buffer);
-		void bindIndexBuffer(ktw::Buffer* buffer);
-		void drawIndexed(uint32_t count);
+		ktw::CommandBuffer& end();
+		ktw::CommandBuffer& bindPipeline(ktw::GraphicsPipeline* pipeline);
+		ktw::CommandBuffer& bindVertexBuffer(ktw::Buffer* buffer);
+		ktw::CommandBuffer& bindIndexBuffer(ktw::Buffer* buffer);
+		ktw::CommandBuffer& drawIndexed(uint32_t count);
 		vk::CommandBuffer getHandle();
 
 	private:
