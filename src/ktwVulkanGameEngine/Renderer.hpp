@@ -29,20 +29,11 @@ namespace ktw {
 		void waitEndOfRender();
 		void setDescriptorPoolSize(uint32_t size);
 		ktw::CommandBuffer startCommandBuffer();
-		void postCommandBuffer(ktw::CommandBuffer& commandBuffer);
-		/*void endCommandBuffer();
-		void bindPipeline(ktw::GraphicsPipeline* pipeline);
-		void bindVertexBuffer(ktw::Buffer* buffer);
-		void bindIndexBuffer(ktw::Buffer* buffer);
-		void drawIndexed(uint32_t count);*/
 
 	private:
 		ktw::Context& context;
 		std::vector<vk::CommandBuffer> postedCommandBuffers;
-		//vk::CommandBuffer recordingCommandBuffer;
 		ktw::FrameBuffer* renderingFrameBuffer = nullptr;
-		//bool renderingFrame = false;
-		//bool recordingCommand = false;
 		ktw::CommandPool commandPool;
 		ktw::DescriptorPool descriptorPool;
 		vk::UniqueFence renderFinishedFence;
