@@ -10,6 +10,8 @@
 #include "CommandPool.hpp"
 #include "Context.hpp"
 #include "FrameBuffer.hpp"
+#include "DescriptorPool.hpp"
+#include "CommandBuffer.hpp"
 
 namespace ktw {
 	class Renderer {
@@ -26,21 +28,23 @@ namespace ktw {
 		void endFrame();
 		void waitEndOfRender();
 		void setDescriptorPoolSize(uint32_t size);
-		void startCommandBuffer();
-		void endCommandBuffer();
+		ktw::CommandBuffer startCommandBuffer();
+		void postCommandBuffer(ktw::CommandBuffer& commandBuffer);
+		/*void endCommandBuffer();
 		void bindPipeline(ktw::GraphicsPipeline* pipeline);
 		void bindVertexBuffer(ktw::Buffer* buffer);
 		void bindIndexBuffer(ktw::Buffer* buffer);
-		void drawIndexed(uint32_t count);
+		void drawIndexed(uint32_t count);*/
 
 	private:
 		ktw::Context& context;
 		std::vector<vk::CommandBuffer> postedCommandBuffers;
-		vk::CommandBuffer recordingCommandBuffer;
+		//vk::CommandBuffer recordingCommandBuffer;
 		ktw::FrameBuffer* renderingFrameBuffer = nullptr;
 		//bool renderingFrame = false;
-		bool recordingCommand = false;
+		//bool recordingCommand = false;
 		ktw::CommandPool commandPool;
+		ktw::DescriptorPool descriptorPool;
 		vk::UniqueFence renderFinishedFence;
 	};
 }

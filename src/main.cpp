@@ -76,12 +76,13 @@ private:
 	}
 
 	void userUpdate(ktw::Renderer& renderer) override {
-		renderer.startCommandBuffer();
-		renderer.bindPipeline(graphicsPipeline);
-		renderer.bindVertexBuffer(vertexBuffer);
-		renderer.bindIndexBuffer(indexBuffer);
-		renderer.drawIndexed(indexBuffer->getCount());
-		renderer.endCommandBuffer();
+		ktw::CommandBuffer commandBuffer = renderer.startCommandBuffer();
+		commandBuffer.bindPipeline(graphicsPipeline);
+		commandBuffer.bindVertexBuffer(vertexBuffer);
+		commandBuffer.bindIndexBuffer(indexBuffer);
+		commandBuffer.drawIndexed(indexBuffer->getCount());
+		commandBuffer.end();
+		renderer.postCommandBuffer(commandBuffer);
 	}
 
 	void userCleanup(ktw::Renderer& renderer) override {

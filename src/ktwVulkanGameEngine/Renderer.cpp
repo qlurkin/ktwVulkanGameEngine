@@ -4,7 +4,8 @@
 namespace ktw {
 	Renderer::Renderer(ktw::Context& context) :
 		context(context),
-		commandPool(context)
+		commandPool(context),
+		descriptorPool(context, 2, 2, 2)
 	{
 		auto fenceInfo = vk::FenceCreateInfo();
 		renderFinishedFence = context.getDevice().createFenceUnique(fenceInfo);
@@ -66,20 +67,15 @@ namespace ktw {
 	// 	swapChain.setDescriptorPoolSize(size);
 	// }
 
-	void Renderer::startCommandBuffer() {
+	ktw::CommandBuffer Renderer::startCommandBuffer() {
 		if(!renderingFrameBuffer) {
 			throw std::runtime_error("Frame not started");
 		}
 
-		if(recordingCommand) {
-			throw std::runtime_error("Already recording a command buffer");
-		}
+		vk::CommandBuffer commandBuffer = commandPool.getCommandBuffer();
 
-		recordingCommandBuffer = commandPool.getCommandBuffer();
-		recordingCommand = true;
-
-		vk::ClearValue clearColor(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
-		vk::Rect2D renderArea = { {0, 0}, {context.getWidth(), context.getHeight()} };
+		/*vk::ClearValue clearColor(vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		vk::Rect2D renderArea = { {0, 0}, {renderingFrameBuffer->getWidth(), renderingFrameBuffer->getHeight()} };
 		
 		auto beginInfo = vk::CommandBufferBeginInfo()
 			.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -93,10 +89,16 @@ namespace ktw {
 				.setClearValueCount(1)
 				.setPClearValues(&clearColor);
 
-		recordingCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
+		recordingCommandBuffer.beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);*/
+
+		return ktw::CommandBuffer(*renderingFrameBuffer, commandBuffer);
 	}
 
-	void Renderer::endCommandBuffer() {
+	void Renderer::postCommandBuffer(ktw::CommandBuffer& commandBuffer) {
+		postedCommandBuffers.push_back(commandBuffer.getHandle());
+	}
+
+	/*void Renderer::endCommandBuffer() {
 		if(!recordingCommand) {
 			throw std::runtime_error("No command buffer started");
 		}
@@ -135,6 +137,6 @@ namespace ktw {
 			throw std::runtime_error("No command buffer started");
 		}
 		recordingCommandBuffer.drawIndexed(count, 1, 0, 0, 0);
-	}
+	}*/
 
 }

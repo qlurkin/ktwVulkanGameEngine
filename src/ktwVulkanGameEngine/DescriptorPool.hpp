@@ -12,7 +12,7 @@ namespace ktw {
 	public:
 		DescriptorPool(ktw::Context& context, uint32_t maxSets, uint32_t maxBuffers, uint32_t maxTextures);
 		~DescriptorPool();
-		vk::DescriptorSet getDescriptorSet(ktw::FrameBuffer& frameBuffer);
+		vk::DescriptorSet getDescriptorSet(ktw::FrameBuffer& frameBuffer, vk::DescriptorSetLayout layout);
 		void freeDescriptorPools(ktw::FrameBuffer& frameBuffer);
 
 	private:
@@ -24,5 +24,6 @@ namespace ktw {
 		std::unordered_map<vk::Framebuffer, std::vector<vk::DescriptorPool>> lockedDescriptorPool;
 
 		vk::DescriptorPool createDescriptorPool();
+		bool createDescriptorSet(vk::DescriptorPool descriptorPool, vk::DescriptorSet& descriptorSet, vk::DescriptorSetLayout layout);
 	};
 }
